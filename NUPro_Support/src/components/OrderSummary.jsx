@@ -13,134 +13,106 @@ const OrderSummary = ({ configData, onExport }) => {
     flyingServers = [],
   } = configData || {};
 
-  // Detaillierte Erfassung aller Einzelspezifikationen für eine große, lückenlose Tabelle
-  const detailedItems = [];
-  let indexCounter = 1;
-
-  terminals.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Terminals',
-      name: item.type || 'Standard Terminal',
-      spec: 'Hardware Terminal Unit',
-      variant: item.variant || 'Standard',
-      mountOrDetails: 'N/A',
-      qty: Number(item.quantity) || 0,
+  // Gruppierung für Terminals
+  const groupTerminals = () => {
+    const map = {};
+    terminals.forEach((t) => {
+      const key = t.type || 'Terminal';
+      if (!map[key]) map[key] = { name: t.type || 'Terminal', qty: 0 };
+      map[key].qty += Number(t.quantity) || 1;
     });
-  });
+    return Object.values(map);
+  };
 
-  dbServers.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Database Server',
-      name: item.gameType || item.model || 'FS695 DB Server',
-      spec: 'Core Database Unit',
-      variant: item.housing || item.execution || 'Standard Execution',
-      mountOrDetails: 'Server Rack / Standalone',
-      qty: Number(item.quantity) || 0,
+  const groupDbServers = () => {
+    const map = {};
+    dbServers.forEach((db) => {
+      const key = `${db.gameType || db.model || 'DB Server'} (${db.housing || db.execution || 'Standard'})`;
+      if (!map[key]) map[key] = { name: db.gameType || db.model || 'DB Server', execution: db.housing || db.execution || 'Standard', qty: 0 };
+      map[key].qty += Number(db.quantity) || 1;
     });
-  });
+    return Object.values(map);
+  };
 
-  autoWheels.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'FS593 Auto Wheel',
-      name: item.gameType || 'Auto Wheel',
-      spec: item.wheelType || 'Standard Wheel',
-      variant: 'Auto Wheel Module',
-      mountOrDetails: item.mount ? `Mount: ${item.mount}` : 'Standard Mount',
-      qty: Number(item.quantity) || 0,
+  // Erweiterte Gruppierung für FS593 Auto Wheels (inkl. Spiel, Wheel-Typ, Mount und Zero-Variante)
+  const groupAutoWheels = () => {
+    const map = {};
+    autoWheels.forEach((w) => {
+      const key = `${w.gameType || 'Multi Game'} - ${w.wheelType || 'Standard Wheel'} - Mount: ${w.mount || 'N/A'} - Zero: ${w.zeroVariant || 'Standard'}`;
+      if (!map[key]) {
+        map[key] = {
+          game: w.gameType || 'Multi Game',
+          wheel: w.wheelType || 'Standard Wheel',
+          mount: w.mount || 'Standard',
+          zero: w.zeroVariant || 'Standard',
+          qty: 0,
+        };
+      }
+      map[key].qty += Number(w.quantity) || 1;
     });
-  });
+    return Object.values(map);
+  };
 
-  liveServers.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'FS695 Live Game Server',
-      name: item.gameType || 'Live Game Server',
-      spec: item.displaySize ? `Display: ${item.displaySize}` : 'Standard Display',
-      variant: 'Live Server Unit',
-      mountOrDetails: item.mount ? `Mount: ${item.mount}` : 'Standard Mount',
-      qty: Number(item.quantity) || 0,
+  const groupLiveServers = () => {
+    const map = {};
+    liveServers.forEach((l) => {
+      const key = `${l.gameType} (${l.displaySize}) [Mount: ${l.mount}]`;
+      if (!map[key]) map[key] = { name: l.gameType, display: l.displaySize, mount: l.mount || 'Standard', qty: 0 };
+      map[key].qty += Number(l.quantity) || 1;
     });
-  });
+    return Object.values(map);
+  };
 
-  if (streamServersCount > 0) {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Infrastructure',
-      name: 'Stream Server',
-      spec: 'Required Live Streaming Unit',
-      variant: 'High-Performance Stream Node',
-      mountOrDetails: 'Network Rack',
-      qty: streamServersCount,
+  const groupFlyingServers = () => {
+    const map = {};
+    flyingServers.forEach((f) => {
+      const key = `${f.gameType} - ${f.caseType || 'Standard Case'}`;
+      if (!map[key]) map[key] = { name: f.gameType, caseType: f.caseType || 'Standard Case', qty: 0 };
+      map[key].qty += Number(f.quantity) || 1;
     });
-  }
+    return Object.values(map);
+  };
 
-  flyingServers.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Flying Game Server',
-      name: item.gameType || 'Flying Game',
-      spec: 'Flying Server Architecture',
-      variant: item.caseType || 'FS695 Case',
-      mountOrDetails: 'Configured Case Variant',
-      qty: Number(item.quantity) || 0,
+  const groupRemoteServers = () => {
+    const map = {};
+    remoteServers.forEach((r) => {
+      const key = r.gameType || 'Remote Game';
+      if (!map[key]) map[key] = { name: r.gameType || 'Remote Game', qty: 0 };
+      map[key].qty += Number(r.quantity) || 1;
     });
-  });
+    return Object.values(map);
+  };
 
-  remoteServers.forEach((item) => {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Remote Game Server',
-      name: item.gameType || 'Remote Game',
-      spec: 'Booksize Form Factor',
-      variant: 'Remote Node',
-      mountOrDetails: 'Compact Housing',
-      qty: Number(item.quantity) || 0,
-    });
-  });
+  const summaryTerminals = groupTerminals();
+  const summaryDbServers = groupDbServers();
+  const summaryAutoWheels = groupAutoWheels();
+  const summaryLiveServers = groupLiveServers();
+  const summaryFlyingServers = groupFlyingServers();
+  const summaryRemoteServers = groupRemoteServers();
 
-  if (animationPcsCount > 0) {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Display Hardware',
-      name: 'Animation PCs',
-      spec: 'Visual Effects Rendering',
-      variant: 'Animation Node',
-      mountOrDetails: 'Display Controller',
-      qty: animationPcsCount,
-    });
-  }
+  const totalUnits = 
+    summaryTerminals.reduce((acc, x) => acc + x.qty, 0) +
+    summaryDbServers.reduce((acc, x) => acc + x.qty, 0) +
+    summaryAutoWheels.reduce((acc, x) => acc + x.qty, 0) +
+    summaryLiveServers.reduce((acc, x) => acc + x.qty, 0) +
+    streamServersCount +
+    summaryFlyingServers.reduce((acc, x) => acc + x.qty, 0) +
+    summaryRemoteServers.reduce((acc, x) => acc + x.qty, 0) +
+    animationPcsCount +
+    resultPcsCount;
 
-  if (resultPcsCount > 0) {
-    detailedItems.push({
-      pos: indexCounter++,
-      category: 'Display Hardware',
-      name: 'Result Info (RID) PCs',
-      spec: 'Result Data Distribution',
-      variant: 'RID Unit',
-      mountOrDetails: 'Display Controller',
-      qty: resultPcsCount,
-    });
-  }
-
-  const totalUnits = detailedItems.reduce((acc, item) => acc + item.qty, 0);
-
-  // Echter direkter PDF-Download (nutzt html2pdf.js falls vorhanden, sonst Fallback auf print)
   const handleDirectPdfDownload = () => {
     const element = document.getElementById('invoice-printable-area');
     if (window.html2pdf) {
       const opt = {
         margin:       10,
-        filename:     'NovoUnity_Configuration_Invoice.pdf',
+        filename:     'NovoUnity_Configuration_Analysis.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
       window.html2pdf().from(element).set(opt).save();
     } else {
-      // Fallback: Druckdialog mit Hinweis, falls die Bibliothek nicht installiert ist
       window.print();
     }
   };
@@ -153,64 +125,228 @@ const OrderSummary = ({ configData, onExport }) => {
 
   return (
     <div className="terminal-card invoice-wrapper" id="invoice-printable-area">
-      {/* Rechnungs-Kopfbereich */}
       <div className="invoice-header">
         <div>
-          <h2 className="invoice-company">Novo Unity Pro — System Spezifikation</h2>
-          <p className="text-muted invoice-subtitle">Detaillierte Hardware-Stückliste & Konfigurationsdetails</p>
+          <h2 className="invoice-company">Novo Unity Pro — System-Auswertung & Übersicht</h2>
+          <p className="text-muted invoice-subtitle">Detaillierte Übersicht aller Konfigurationsschritte und Komponenten</p>
         </div>
         <div className="invoice-meta">
           <p><strong>Datum:</strong> {currentDate}</p>
-          <p><strong>Status:</strong> <span className="text-success">Vollständig Konfiguriert</span></p>
-          <p><strong>Gesamtstückzahl:</strong> {totalUnits} Units</p>
+          <p><strong>Status:</strong> <span className="text-success">● Konfiguriert</span></p>
+          <p><strong>Gesamteinheiten:</strong> {totalUnits} Units</p>
         </div>
       </div>
 
       <hr className="invoice-divider" />
 
-      {/* Große, detaillierte Rechnungstabelle */}
-      <div className="invoice-body">
-        {detailedItems.length === 0 ? (
+      <div className="invoice-body analysis-body">
+        {totalUnits === 0 ? (
           <div className="empty-state">
-            Keine Komponenten konfiguriert. Bitte schließe die vorherigen Schritte ab.
+            Keine Konfigurationsdaten vorhanden. Bitte schließen Sie die Konfigurationsschritte ab.
           </div>
         ) : (
-          <table className="invoice-table detailed-invoice-table">
-            <thead>
-              <tr>
-                <th style={{ width: '5%' }}>Pos.</th>
-                <th style={{ width: '15%' }}>Kategorie</th>
-                <th style={{ width: '22%' }}>Komponente / Spiel</th>
-                <th style={{ width: '20%' }}>Spezifikation</th>
-                <th style={{ width: '18%' }}>Variante / Gehäuse</th>
-                <th style={{ width: '12%' }}>Details / Mount</th>
-                <th style={{ width: '8%' }} className="text-right">Menge</th>
-              </tr>
-            </thead>
-            <tbody>
-              {detailedItems.map((item, index) => (
-                <tr key={index} className="invoice-row">
-                  <td className="text-muted">{item.pos}</td>
-                  <td className="font-semibold">{item.category}</td>
-                  <td>{item.name}</td>
-                  <td className="text-small text-muted">{item.spec}</td>
-                  <td className="text-small">{item.variant}</td>
-                  <td className="text-small text-muted">{item.mountOrDetails}</td>
-                  <td className="text-right font-bold">{item.qty}×</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="invoice-total-row">
-                <td colSpan="6" className="text-right font-bold">Gesamtsumme Einheiten:</td>
-                <td className="text-right font-bold highlight-qty">{totalUnits}×</td>
-              </tr>
-            </tfoot>
-          </table>
+          <div className="analysis-sections-container">
+
+            {/* 1. Terminals */}
+            {summaryTerminals.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">1. Terminals & Hardware Units</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Terminal Modell</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryTerminals.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.name}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 2. Database Servers */}
+            {summaryDbServers.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">2. Database Servers</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Spiel / System</th>
+                      <th>Ausführung / Gehäuse</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryDbServers.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.name}</td>
+                        <td className="text-muted">{item.execution}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 3. FS593 Auto Wheels (Mit Spiel, Wheel-Typ, Mount und 0-Variante) */}
+            {summaryAutoWheels.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">3. FS593 Auto Wheels</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Multi Game Typ</th>
+                      <th>Wheel Variante</th>
+                      <th>Kamera Mount</th>
+                      <th>0-Variante</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryAutoWheels.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.game}</td>
+                        <td>{item.wheel}</td>
+                        <td className="text-muted">{item.mount}</td>
+                        <td>{item.zero}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 4. FS695 Live Game Servers */}
+            {summaryLiveServers.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">4. FS695 Live Game Servers</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>TouchBet Spiel</th>
+                      <th>Display Größe</th>
+                      <th>Kamera Mount</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryLiveServers.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.name}</td>
+                        <td>{item.display}</td>
+                        <td className="text-muted">{item.mount}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 5. Flying Game Servers */}
+            {summaryFlyingServers.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">5. Flying Game Servers</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Spieltyp</th>
+                      <th>Gehäuse / Variante</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryFlyingServers.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.name}</td>
+                        <td className="text-muted">{item.caseType}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 6. Remote Game Servers Booksize */}
+            {summaryRemoteServers.length > 0 && (
+              <div className="analysis-section-block">
+                <h4 className="analysis-category-title">6. Remote Game Servers (Booksize)</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Remote Spieltyp</th>
+                      <th className="text-right">Anzahl</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summaryRemoteServers.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="font-semibold">{item.name}</td>
+                        <td className="text-right font-bold">{item.qty}×</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 7. Infrastruktur & Zusätze */}
+            <div className="analysis-section-block">
+              <h4 className="analysis-category-title">7. Infrastruktur & Zusätze</h4>
+              <table className="invoice-table">
+                <thead>
+                  <tr>
+                    <th>Komponente</th>
+                    <th>Beschreibung</th>
+                    <th className="text-right">Anzahl</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {streamServersCount > 0 && (
+                    <tr>
+                      <td className="font-semibold">Stream Server</td>
+                      <td className="text-muted">Netzwerk Streaming-Infrastruktur</td>
+                      <td className="text-right font-bold">{streamServersCount}×</td>
+                    </tr>
+                  )}
+                  {animationPcsCount > 0 && (
+                    <tr>
+                      <td className="font-semibold">Animation PCs</td>
+                      <td className="text-muted">Visual Effects Rendering Hardware</td>
+                      <td className="text-right font-bold">{animationPcsCount}×</td>
+                    </tr>
+                  )}
+                  {resultPcsCount > 0 && (
+                    <tr>
+                      <td className="font-semibold">Result Info (RID) PCs</td>
+                      <td className="text-muted">Result Data Distribution Hardware</td>
+                      <td className="text-right font-bold">{resultPcsCount}×</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
         )}
       </div>
 
-      {/* Aktionsleiste */}
+      {totalUnits > 0 && (
+        <div className="invoice-footer-summary">
+          <span>Gesamtsumme aller konfigurierten Einheiten:</span>
+          <span className="highlight-qty">{totalUnits} Units</span>
+        </div>
+      )}
+
       <div className="summary-action-bar no-print">
         <button
           className="btn btn-secondary"
