@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 
-const KameraSet = () => {
+const KameraSet = ({ onMountChange }) => {
   const [mount, setMount] = useState('Ceiling'); // Default mount type
 
   const handleMountChange = (event) => {
-    setMount(event.target.value);
+    const newMount = event.target.value;
+    setMount(newMount);
+    if (onMountChange) {
+      onMountChange(newMount); // Notify parent component
+    }
   };
 
   return (
@@ -17,7 +21,6 @@ const KameraSet = () => {
         <option value="Table">Table</option>
       </select>
       <p>Mount: {mount}</p>
-      <p>Status: Not Configured</p>
     </div>
   );
 };
