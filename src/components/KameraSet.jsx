@@ -7,7 +7,7 @@ const CAMERA_MOUNTS = [
   {
     id: 'Wheel Mount',
     title: 'Wheel Mount',
-    description: 'Kamera direkt am FS593 integriert.',
+    description: 'Kamera direkt am FS593 montiert.',
     image: wheelMountImg,
   },
   {

@@ -20,7 +20,7 @@ const WHEEL_VARIANTS = [
   { id: 'Single 0', label: 'Single 0', image: singleZeroImg },
   { id: 'American 00', label: 'American 00', image: aDoubleZeroImg },
   { id: 'French 00', label: 'French 00', image: fDoubleZeroImg },
-  { id: 'Wynn 00', label: 'Wynn 00', image: wynnDoubleZeroImg },
+ // { id: 'Wynn 00', label: 'Wynn 00', image: wynnDoubleZeroImg },
 ];
 
 const GAME_IMAGES = {
