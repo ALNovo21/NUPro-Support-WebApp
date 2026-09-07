@@ -2,16 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { isResultInfoSupported } from './gamesConfig';
 import defaultPlaceholder from '../assets/terminal-c028a.jpg';
 
-// 💡 ZUORDNUNG: Individuelle Vorschaubilder je Spiel
-const GAME_ANIMATION_IMAGES = {
-  // 'Roulette': require('../assets/animations/roulette-anim.png'),
-  // 'Blackjack': require('../assets/animations/blackjack-anim.png'),
-};
+// Hauptbild-Import für den Server
+import bs707CaseImg from '../assets/Server/bs_707.png';
 
-const GAME_RESULT_IMAGES = {
-  // 'Roulette': require('../assets/results/roulette-result.png'),
-  // 'Blackjack': require('../assets/results/blackjack-result.png'),
-};
+// 💡 ANIMATIONS-BILDER (Pfad: assets/animations/)
+import animFlyRoulette from '../assets/animations/fly_roulette.png'; 
+import animTouchRoulette from '../assets/animations/touch_roulette.png';
+import animFlyBlackjack from '../assets/animations/fly_blackjack.png';
+import animTouchBlackjack from '../assets/animations/fly_blackjack.png';
+import animFlyBaccarat from '../assets/animations/fly_baccarat.png';
+import animTouchBaccarat from '../assets/animations/touch_baccarat.png';
+import animFlySicbo from '../assets/animations/fly_sicbo.png';
+import animTouchSicbo from '../assets/animations/touch_sicbo.png';
+import animMultiTouchLlr from '../assets/animations/llr_multi_touch.png'; // Multi & Touchbet LLR teilen sich die Animation
+
+// 💡 RESULT-INFO-BILDER (Pfad: assets/results/)
+import resFlyRoulette from '../assets/results/touch_roulette.png';
+import resTouchRoulette from '../assets/results/touch_roulette.png';
+import resBaccarat from '../assets/results/baccarat.png'; // Baccarat unterscheidet sich nicht zwischen Flying/Touchbet
+import resLlr from '../assets/results/llr.png'; // LLR Result Info
 
 const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
   const [selections, setSelections] = useState({});
@@ -46,6 +55,51 @@ const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
     }
   }, [selections, allSelectedGames, onChangeConfig]);
 
+  // Hilfsfunktion zur Ermittlung des passenden Animationsbildes je nach Spieltyp & Quelle
+  const getAnimationImage = (gameName, source) => {
+    const lower = gameName.toLowerCase();
+    const srcLower = (source || '').toLowerCase();
+
+    if (lower.includes('lucky lady')) {
+      return animMultiTouchLlr; // Multi & Touchbet LLR teilen sich die Animation
+    }
+    if (lower.includes('roulette') || lower.includes('88 roulette')) {
+      if (srcLower.includes('flying')) return animFlyRoulette;
+      return animTouchRoulette; // Touchbet & Multi (sofern vorhanden)
+    }
+    if (lower.includes('blackjack')) {
+      if (srcLower.includes('flying')) return animFlyBlackjack;
+      return animTouchBlackjack;
+    }
+    if (lower.includes('baccarat')) {
+      if (srcLower.includes('flying')) return animFlyBaccarat;
+      return animTouchBaccarat;
+    }
+    if (lower.includes('sicbo')) {
+      if (srcLower.includes('flying')) return animFlySicbo;
+      return animTouchSicbo;
+    }
+    return defaultPlaceholder;
+  };
+
+  // Hilfsfunktion zur Ermittlung des passenden Result-Info-Bildes
+  const getResultImage = (gameName, source) => {
+    const lower = gameName.toLowerCase();
+    const srcLower = (source || '').toLowerCase();
+
+    if (lower.includes('lucky lady')) {
+      return resLlr;
+    }
+    if (lower.includes('roulette') || lower.includes('88 roulette')) {
+      if (srcLower.includes('flying')) return resFlyRoulette;
+      return resTouchRoulette;
+    }
+    if (lower.includes('baccarat')) {
+      return resBaccarat; // Baccarat unterscheidet sich nicht zwischen flying und touchbet
+    }
+    return defaultPlaceholder;
+  };
+
   const isReady =
     allSelectedGames.length > 0 &&
     allSelectedGames.every((game) => {
@@ -67,9 +121,15 @@ const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
         </span>
       </div>
 
+      {/* Produkt-Vorschau mit BS707 Bild und max height 300 */}
       <div className="server-preview-container">
-        <div className="server-img-wrapper">
-          <img src={defaultPlaceholder} alt="Animation PC" className="server-img" />
+        <div className="server-img-wrapper large-preview-wrapper" style={{ maxHeight: '300px', height: 'auto' }}>
+          <img 
+            src={bs707CaseImg} 
+            alt="Animation PC Hardware" 
+            className="server-img large-server-img" 
+            style={{ maxHeight: '300px', objectFit: 'contain', width: '100%' }}
+          />
         </div>
         <div className="server-info">
           <h4>Animation & Result Info Hardware</h4>
@@ -90,9 +150,9 @@ const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
               const supportsResultInfo = isResultInfoSupported(gameItem.name);
               const currentSelection = selections[gameItem.id] || { animationPc: '', resultInfo: '' };
               
-              // Spielspezifische Bilder laden (mit Platzhalter-Fallback)
-              const animImage = GAME_ANIMATION_IMAGES[gameItem.name] || defaultPlaceholder;
-              const resultImage = GAME_RESULT_IMAGES[gameItem.name] || defaultPlaceholder;
+              // Dynamische Bildzuweisung über die Funktionen
+              const animImage = getAnimationImage(gameItem.name, gameItem.source);
+              const resultImage = getResultImage(gameItem.name, gameItem.source);
 
               return (
                 <div key={gameItem.id} className="game-config-card-box">
@@ -135,19 +195,26 @@ const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
                       Result Info PC Option ({gameItem.name}) {!supportsResultInfo && '- Incompatible'}
                     </label>
                     <div className={`terminal-image-grid ${!supportsResultInfo ? 'grid-disabled' : ''}`}>
+                      
+                      {/* Linke Option: Mit Result Info (bzw. rotes Icon falls nicht unterstützt) */}
                       <div
-                        className={`terminal-select-card ${supportsResultInfo && currentSelection.resultInfo === 'Yes' ? 'selected' : ''} ${!supportsResultInfo ? 'disabled-card' : ''}`}
+                        className={`terminal-select-card ${!supportsResultInfo ? 'no-image-card disabled-card' : ''} ${supportsResultInfo && currentSelection.resultInfo === 'Yes' ? 'selected' : ''}`}
                         onClick={() => supportsResultInfo && handleSelectionChange(gameItem.id, 'resultInfo', 'Yes')}
                       >
-                        <div className="img-wrapper">
-                          <img src={resultImage} alt={`${gameItem.name} Result Display`} className="terminal-img" />
-                        </div>
+                        {supportsResultInfo ? (
+                          <div className="img-wrapper">
+                            <img src={resultImage} alt={`${gameItem.name} Result Display`} className="terminal-img" />
+                          </div>
+                        ) : (
+                          <div className="no-img-placeholder">🚫</div>
+                        )}
                         <span className="terminal-name">With Result Info PC</span>
                         <p className="card-subtext">
                           {supportsResultInfo ? `Dedicated ${gameItem.name} Result Display` : 'Not Supported for this Game'}
                         </p>
                       </div>
 
+                      {/* Rechte Option: Ohne Result Info */}
                       <div
                         className={`terminal-select-card no-image-card ${supportsResultInfo && currentSelection.resultInfo === 'No' ? 'selected' : ''} ${!supportsResultInfo ? 'disabled-card' : ''}`}
                         onClick={() => supportsResultInfo && handleSelectionChange(gameItem.id, 'resultInfo', 'No')}
@@ -158,6 +225,7 @@ const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
                           {supportsResultInfo ? 'No Result Display' : 'Incompatible'}
                         </p>
                       </div>
+
                     </div>
                   </div>
                 </div>
