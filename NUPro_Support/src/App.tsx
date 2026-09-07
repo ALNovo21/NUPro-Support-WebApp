@@ -41,9 +41,6 @@ export default function App() {
   // Stream Server Logik: Benötigt genau dann 1x Stream Server, wenn FS593 oder FS695 vorhanden sind
   const requiresStreamServer = fs593List.length > 0 || fs695List.length > 0;
 
-  // Status Check für Step 8: Ist 'RDY', sobald mindestens 1 Animation oder 1 Result PC ausgewählt wurde
-  const isAnimationReady = (animPcConfig.animationPcs + animPcConfig.resultPcs) > 0;
-
   // Handler zum Hinzufügen von Spielen in die zentrale Liste
   const handleAddGenericGame = (source, name, quantity) => {
     if (!name || quantity < 1) return;
@@ -80,6 +77,16 @@ export default function App() {
   const handleAddRemote = (game, quantity) => {
     setRemoteList((prev) => [...prev, { game, quantity: Number(quantity) }]);
     handleAddGenericGame('Remote Game Server', game, quantity);
+  };
+
+  // Handler für Animation & Result PC Updates
+  const handleAnimPcChange = (config) => {
+    if (config) {
+      setAnimPcConfig({
+        animationPcs: Number(config.animationPcs || config.animPcs || 0),
+        resultPcs: Number(config.resultPcs || config.ridPcs || 0),
+      });
+    }
   };
 
   const nextStep = () => {
@@ -174,33 +181,13 @@ export default function App() {
           <div>
             <AnimationPC 
               allSelectedGames={allGames} 
-              onChangeConfig={(config) => setAnimPcConfig(config)}
+              onChangeConfig={handleAnimPcChange}
+              onUpdateConfig={handleAnimPcChange}
             />
-
-            {/* Live Status Bar */}
-            <div style={{
-              marginTop: '25px',
-              padding: '12px 20px',
-              borderRadius: '6px',
-              fontWeight: 'bold',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: isAnimationReady ? '#dcfce7' : '#fef3c7',
-              border: `1px solid ${isAnimationReady ? '#86efac' : '#fde047'}`,
-              color: isAnimationReady ? '#15803d' : '#a16207'
-            }}>
-              <span>Status: {isAnimationReady ? '🟢 RDY (Ready)' : '🟡 NOT READY'}</span>
-              <span style={{ fontSize: '0.85em', fontWeight: 'normal' }}>
-                {isAnimationReady 
-                  ? `Auswahl abgeschlossen (${animPcConfig.animationPcs || 0} Animation PC, ${animPcConfig.resultPcs || 0} Result PC)` 
-                  : 'Bitte wähle mindestens 1 Animation oder Result PC aus'}
-              </span>
-            </div>
           </div>
         )}
 
-        {/* Step 9: Final Detailed Summary */}
+        {/* Step 9: Summary & Finish */}
         {currentStep === 9 && (
           <div>
             {!isCompleted ? (

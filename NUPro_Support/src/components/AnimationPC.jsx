@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { isResultInfoSupported } from './gamesConfig';
 
-const AnimationPC = ({ allSelectedGames = [] }) => {
+const AnimationPC = ({ allSelectedGames = [], onChangeConfig }) => {
   // Speichert die Auswahlen: { [gameId]: { animationPc: 'Yes'|'No', resultInfo: 'Yes'|'No' } }
   const [selections, setSelections] = useState({});
 
@@ -15,12 +15,43 @@ const AnimationPC = ({ allSelectedGames = [] }) => {
     }));
   };
 
+  // 💡 NEU: Rechnet die ausgewählten 'Yes'-PCs zusammen und übermittelt sie an Step 9 (App.jsx)
+  useEffect(() => {
+    let animCount = 0;
+    let resultCount = 0;
+
+    allSelectedGames.forEach((game) => {
+      const sel = selections[game.id];
+      const qty = Number(game.quantity) || 1;
+
+      if (sel?.animationPc === 'Yes') {
+        animCount += qty;
+      }
+      if (sel?.resultInfo === 'Yes') {
+        resultCount += qty;
+      }
+    });
+
+    if (typeof onChangeConfig === 'function') {
+      onChangeConfig({
+        animationPcs: animCount,
+        resultPcs: resultCount,
+      });
+    }
+  }, [selections, allSelectedGames, onChangeConfig]);
+
   // Status ist "Ready", wenn für jedes Spiel eine Auswahl (Ja oder Nein) getroffen wurde
   const isReady =
     allSelectedGames.length > 0 &&
     allSelectedGames.every((game) => {
       const sel = selections[game.id];
-      return sel && sel.animationPc !== undefined && sel.resultInfo !== undefined;
+      const supportsResult = isResultInfoSupported(game.name);
+      
+      // Animation PC muss gewählt sein, und Result Info PC falls es unterstützt wird
+      const animOk = sel && sel.animationPc !== undefined && sel.animationPc !== '';
+      const resultOk = !supportsResult || (sel && sel.resultInfo !== undefined && sel.resultInfo !== '');
+      
+      return animOk && resultOk;
     });
 
   const status = isReady ? 'Ready' : 'Not Configured';
@@ -97,7 +128,7 @@ const AnimationPC = ({ allSelectedGames = [] }) => {
                       <option value="No">No</option>
                     </select>
                   ) : (
-                    <span style={{ color: '#888', italic: 'true', fontSize: '0.9em' }}>
+                    <span style={{ color: '#888', fontStyle: 'italic', fontSize: '0.9em' }}>
                       Not Available (Incompatible)
                     </span>
                   )}
