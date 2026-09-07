@@ -21,7 +21,7 @@ export const GAME_BASE_NAMES = [
     (name) => `Flying (Virtual) ${name}`
   );
   
-  // Multi Spiele (NUR für Roulette-Varianten / FS593)
+  // Multi Spiele (für FS593 / Multi Roulette)
   export const MULTI_GAMES = [
     'Multi Roulette',
     'Multi 88 Roulette',
@@ -34,3 +34,10 @@ export const GAME_BASE_NAMES = [
     ...FLYING_GAMES,
     ...MULTI_GAMES,
   ];
+  
+  // Prüft, ob Result Info PC für ein Spiel erlaubt ist (Blackjack & SICBO sind NICHT erlaubt)
+  export const isResultInfoSupported = (gameName) => {
+    if (!gameName) return false;
+    const lower = gameName.toLowerCase();
+    return !lower.includes('blackjack') && !lower.includes('sicbo');
+  };

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ALL_REMOTE_GAMES } from './gamesConfig';
 
-const RemoteGameServerBooksize = () => {
-  const [gameType, setGameType] = useState(''); // Default: 'Please select'
+const RemoteGameServerBooksize = ({ onAddGame }) => {
+  const [gameType, setGameType] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [addedServers, setAddedServers] = useState([]); // Liste aller hinzugefügten Server
+  const [addedServers, setAddedServers] = useState([]);
 
   const handleGameTypeChange = (event) => {
     setGameType(event.target.value);
@@ -19,28 +19,29 @@ const RemoteGameServerBooksize = () => {
     if (!gameType || quantity < 1) return;
 
     setAddedServers((prevList) => {
-      // Prüfen, ob das Spiel bereits hinzugefügt wurde
       const existingIndex = prevList.findIndex(
         (item) => item.gameType === gameType
       );
 
       if (existingIndex > -1) {
-        // Falls bereits in der Liste: Anzahl erhöhen
         const updatedList = [...prevList];
         updatedList[existingIndex].quantity += quantity;
         return updatedList;
       } else {
-        // Falls neu: Neuen Eintrag hinzufügen
         return [...prevList, { gameType, quantity }];
       }
     });
 
-    // Auswahelfelder nach dem Hinzufügen zurücksetzen
+    // An den zentralen App State übergeben
+    if (onAddGame) {
+      onAddGame(gameType, quantity);
+    }
+
+    // Formular zurücksetzen
     setGameType('');
     setQuantity(1);
   };
 
-  // Status ist "Ready", sobald ein Spiel ausgewählt wurde und die Menge >= 1 ist
   const isReady = Boolean(gameType && quantity >= 1);
   const status = isReady ? 'Ready' : 'Not Configured';
 
@@ -48,7 +49,7 @@ const RemoteGameServerBooksize = () => {
     <div className="remote-card">
       <h3 className="remote-title">Remote Game Server Booksize</h3>
 
-      {/* 1. Spiel wählen (Aus Touchbet, Flying oder Multi) */}
+      {/* 1. Spiel wählen */}
       <div className="remote-section">
         <label htmlFor="remote-game-select">1. Choose Game Type:</label>
         <select
@@ -65,7 +66,7 @@ const RemoteGameServerBooksize = () => {
         </select>
       </div>
 
-      {/* 2. Anzahl angeben */}
+      {/* 2. Quantity */}
       <div className="remote-section">
         <label htmlFor="remote-quantity">2. Quantity:</label>
         <input
@@ -94,7 +95,7 @@ const RemoteGameServerBooksize = () => {
         </button>
       </div>
 
-      {/* 4. Liste aller hinzugefügten Server */}
+      {/* Hinzugefügte Server */}
       <div className="remote-section">
         <h4>Added Remote Game Servers:</h4>
         {addedServers.length === 0 ? (

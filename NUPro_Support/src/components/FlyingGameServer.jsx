@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FLYING_GAMES } from './gamesConfig';
 
-const FlyingGameServer = () => {
+const FlyingGameServer = ({ onAddGame }) => {
   const [caseType, setCaseType] = useState('');
   const [gameType, setGameType] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -36,6 +36,11 @@ const FlyingGameServer = () => {
         return [...prevList, { caseType, gameType, quantity }];
       }
     });
+
+    // An den zentralen App State übergeben
+    if (onAddGame) {
+      onAddGame(gameType, quantity);
+    }
 
     // Formular zurücksetzen
     setCaseType('');
@@ -98,13 +103,13 @@ const FlyingGameServer = () => {
           onClick={handleAddServer}
           disabled={!isReady}
         >
-          Add Game Server
+          Add Flying Game Server
         </button>
       </div>
 
       {/* Hinzugefügte Server */}
       <div className="nlx-section">
-        <h4>Added Game Servers:</h4>
+        <h4>Added Flying Game Servers:</h4>
         {addedServers.length === 0 ? (
           <p>No Game Servers added yet.</p>
         ) : (
