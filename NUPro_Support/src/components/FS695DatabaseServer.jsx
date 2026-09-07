@@ -4,7 +4,7 @@ const FS695DatabaseServer = () => {
   return (
     <div>
       <h3>FS695 Database Server</h3>
-      <p>Status: Not Configured</p>
+      <p>Status: Ready</p>
     </div>
   );
 };

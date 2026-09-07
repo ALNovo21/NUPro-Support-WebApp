@@ -4,7 +4,7 @@ const StreamServer = () => {
   return (
     <div>
       <h3>Stream Server</h3>
-      <p>Status: Not Configured</p>
+      <p>Status: Ready</p>
     </div>
   );
 };

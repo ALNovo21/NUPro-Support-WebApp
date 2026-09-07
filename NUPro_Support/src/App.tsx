@@ -15,9 +15,13 @@ const App = () => {
   return (
     <div>
       <h1>Novo Unity Pro Configurator</h1>
-      <FS695DatabaseServer />
+
+      {/* Render FS593AutoWheel */}
       <FS593AutoWheel />
-      <Terminal type="FVC28A" />
+
+      {/* Other components */}
+      <FS695DatabaseServer />
+      <Terminal />
       <StreamServer />
       <AnimationPC />
       <FS695LiveGameServer />
