@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import placeholderImg from '../assets/terminal-c028a.jpg'; // Platzhalterbild
 
 const FS695DatabaseServer = () => {
   const [caseType, setCaseType] = useState(''); // Default: keine Auswahl
 
-  const handleCaseChange = (event) => {
-    setCaseType(event.target.value);
+  const handleSelectCase = (selectedCase) => {
+    setCaseType(selectedCase);
   };
 
   // Status ist 'Ready', sobald eine Option ausgewählt wurde
@@ -20,28 +21,61 @@ const FS695DatabaseServer = () => {
   };
 
   return (
-    <div className="fs695-card">
-      <h3 className="fs695-title">{getTitle()}</h3>
-
-      {/* Gehäuse-Auswahl */}
-      <div className="fs695-section">
-        <label htmlFor="case-select">Select Configuration:</label>
-        <select id="case-select" value={caseType} onChange={handleCaseChange}>
-          <option value="">Please select</option>
-          <option value="with-case">With FS695 Case (FS695 Database Server)</option>
-          <option value="without-case">Without Case (FXB54 Database Server)</option>
-        </select>
+    <div className="terminal-card">
+      <div className="card-header-bar">
+        <h3 className="terminal-title">{getTitle()}</h3>
+        <span className={`status-badge ${isReady ? 'ready' : 'pending'}`}>
+          {isReady ? '● Ready' : '○ Not Configured'}
+        </span>
       </div>
 
-      {/* Info & Status */}
-      <div className="fs695-section">
-        <p>
-          <strong>Selected Server Type:</strong>{' '}
-          {caseType === 'with-case' && 'FS695 (With Case)'}
-          {caseType === 'without-case' && 'FXB54 (Without Case)'}
-          {!caseType && 'None'}
-        </p>
-        <p>
+      {/* Produkt-Vorschau mit Platzhalterbild */}
+      <div className="server-preview-container">
+        <div className="server-img-wrapper">
+          <img src={placeholderImg} alt="Database Server" className="server-img" />
+        </div>
+        <div className="server-info">
+          <h4>{getTitle()} Unit</h4>
+          <p className="text-muted">
+            Selected Server Type:{' '}
+            <strong>
+              {caseType === 'with-case' && 'FS695 (With Case)'}
+              {caseType === 'without-case' && 'FXB54 (Without Case)'}
+              {!caseType && 'None'}
+            </strong>
+          </p>
+        </div>
+      </div>
+
+      {/* Visuelle Auswahl der Optionen statt Dropdown */}
+      <div className="terminal-section">
+        <label className="section-label">Select Configuration</label>
+        <div className="terminal-image-grid">
+          
+          <div
+            className={`terminal-select-card ${caseType === 'with-case' ? 'selected' : ''}`}
+            onClick={() => handleSelectCase('with-case')}
+          >
+            <div className="card-top-badge">FS695</div>
+            <span className="terminal-name">With FS695 Case</span>
+            <p className="card-subtext">FS695 Database Server</p>
+          </div>
+
+          <div
+            className={`terminal-select-card ${caseType === 'without-case' ? 'selected' : ''}`}
+            onClick={() => handleSelectCase('without-case')}
+          >
+            <div className="card-top-badge">FXB54</div>
+            <span className="terminal-name">Without Case</span>
+            <p className="card-subtext">FXB54 Database Server</p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Status Anziege */}
+      <div className="terminal-section">
+        <p className="status-container">
           <strong>Status:</strong>{' '}
           <span className={`status ${isReady ? 'ready' : 'not-configured'}`}>
             {status}

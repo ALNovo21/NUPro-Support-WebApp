@@ -1,102 +1,140 @@
 import React, { useState } from 'react';
+import c28aImg from '../assets/terminal-c028a.jpg';
+import fv862bImg from '../assets/terminal-fv862b.jpg';
 
 const Terminal = () => {
-  const [type, setType] = useState(''); // Default: 'Please select'
-  const [quantity, setQuantity] = useState(1); // Default: 1
-  const [addedTerminals, setAddedTerminals] = useState([]); // Liste der hinzugefügten Terminals
+  const [type, setType] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [addedTerminals, setAddedTerminals] = useState([]);
 
-  const handleTypeChange = (event) => {
-    setType(event.target.value);
+  const handleSelectType = (selectedType) => {
+    setType(selectedType);
   };
 
-  const handleQuantityChange = (event) => {
-    const value = parseInt(event.target.value, 10);
-    setQuantity(isNaN(value) || value < 1 ? 1 : value);
+  const handleQuantityChange = (delta) => {
+    setQuantity((prev) => Math.max(1, prev + delta));
+  };
+
+  const handleInputChange = (e) => {
+    const val = parseInt(e.target.value, 10);
+    setQuantity(isNaN(val) || val < 1 ? 1 : val);
   };
 
   const handleAddTerminal = () => {
     if (!type || quantity < 1) return;
 
     setAddedTerminals((prevList) => {
-      // Prüfen, ob der Typ bereits in der Liste existiert
       const existingIndex = prevList.findIndex((item) => item.type === type);
 
       if (existingIndex > -1) {
-        // Falls vorhanden: Anzahl zur bestehenden aufaddieren
         const updatedList = [...prevList];
         updatedList[existingIndex].quantity += quantity;
         return updatedList;
       } else {
-        // Falls neu: Neue Zeile anlegen
         return [...prevList, { type, quantity }];
       }
     });
 
-    // Formular für den nächsten Eintrag zurücksetzen
     setType('');
     setQuantity(1);
   };
 
-  // Status ist 'Ready', sobald ein Typ ausgewählt wurde und die Anzahl >= 1 ist
   const isReady = Boolean(type && quantity >= 1);
-  const status = isReady ? 'Ready' : 'Not Configured';
 
   return (
     <div className="terminal-card">
-      <h3 className="terminal-title">Terminal Configuration</h3>
-
-      {/* 1. Typ-Auswahl */}
-      <div className="terminal-section">
-        <label htmlFor="terminal-select">Choose a Terminal:</label>
-        <select id="terminal-select" value={type} onChange={handleTypeChange}>
-          <option value="">Please select</option>
-          <option value="FVC28A">FVC28A</option>
-          <option value="FV862B">FV862B</option>
-        </select>
+      <div className="card-header-bar">
+        <h3 className="terminal-title">Terminal Configuration</h3>
+        <span className={`status-badge ${isReady ? 'ready' : 'pending'}`}>
+          {isReady ? '● Ready to Add' : '○ Select Terminal'}
+        </span>
       </div>
 
-      {/* 2. Anzahl-Eingabe */}
+      {/* 1. Visuelle Typ-Auswahl */}
       <div className="terminal-section">
-        <label htmlFor="terminal-quantity">Quantity:</label>
-        <input
-          id="terminal-quantity"
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={handleQuantityChange}
-        />
+        <label className="section-label">1. Select Terminal Type</label>
+        <div className="terminal-image-grid">
+          
+          <div
+            className={`terminal-select-card ${type === 'FVC28A' ? 'selected' : ''}`}
+            onClick={() => handleSelectType('FVC28A')}
+          >
+            <div className="img-wrapper">
+              <img src={c28aImg} alt="FVC28A" className="terminal-img" />
+            </div>
+            <span className="terminal-name">FVC28A</span>
+          </div>
+
+          <div
+            className={`terminal-select-card ${type === 'FV862B' ? 'selected' : ''}`}
+            onClick={() => handleSelectType('FV862B')}
+          >
+            <div className="img-wrapper">
+              <img src={fv862bImg} alt="FV862B" className="terminal-img" />
+            </div>
+            <span className="terminal-name">FV862B</span>
+          </div>
+
+        </div>
       </div>
 
-      {/* 3. Status & Add Button */}
+      {/* 2. Mengenauswahl & Add-Button in EINER homogenen Zeile */}
       <div className="terminal-section">
-        <p>
-          <strong>Status:</strong>{' '}
-          <span className={`status ${isReady ? 'ready' : 'not-configured'}`}>
-            {status}
-          </span>
-        </p>
-        <button
-          className="terminal-add-button"
-          onClick={handleAddTerminal}
-          disabled={!isReady}
-        >
-          Add Terminals
-        </button>
+        <label className="section-label">2. Quantity & Action</label>
+        <div className="action-row">
+          
+          {/* Integrierte Plus/Minus-Gruppe */}
+          <div className="quantity-group">
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(-1)}
+              disabled={quantity <= 1}
+            >
+              −
+            </button>
+            <input
+              type="number"
+              className="qty-input"
+              value={quantity}
+              onChange={handleInputChange}
+              min="1"
+            />
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(1)}
+            >
+              +
+            </button>
+          </div>
+
+          {/* Perfekt ausgerichteter Add Button */}
+          <button
+            className="terminal-add-button"
+            onClick={handleAddTerminal}
+            disabled={!isReady}
+          >
+            + Add to List
+          </button>
+
+        </div>
       </div>
 
-      {/* Liste der hinzugefügten Terminals */}
-      <div className="terminal-section">
-        <h4>Added Terminals:</h4>
+      {/* 3. Liste der hinzugefügten Terminals */}
+      <div className="terminal-section added-list-section">
+        <label className="section-label">Configured Terminals Summary</label>
         {addedTerminals.length === 0 ? (
-          <p>No terminals added yet.</p>
+          <div className="empty-state">No terminals added to configuration yet.</div>
         ) : (
-          <ul>
+          <div className="added-terminals-grid">
             {addedTerminals.map((item, index) => (
-              <li key={index}>
-                <strong>Type:</strong> {item.type} | <strong>Quantity:</strong> {item.quantity}x
-              </li>
+              <div key={index} className="added-terminal-chip">
+                <span className="chip-type">{item.type}</span>
+                <span className="chip-qty">{item.quantity}×</span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
