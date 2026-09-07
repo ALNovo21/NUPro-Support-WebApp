@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import placeholderImg from '../assets/terminal-c028a.jpg'; // Platzhalterbild
+//import placeholderImg from '../assets/terminal-c028a.jpg'; // Platzhalterbild
 
 const FS695DatabaseServer = () => {
   const [caseType, setCaseType] = useState(''); // Default: keine Auswahl
@@ -32,7 +32,7 @@ const FS695DatabaseServer = () => {
       {/* Produkt-Vorschau mit Platzhalterbild */}
       <div className="server-preview-container">
         <div className="server-img-wrapper">
-          <img src={placeholderImg} alt="Database Server" className="server-img" />
+          <img src={'src/assets/Server/FS695DB copy.png'} alt="Database Server" className="server-img" height={300} />
         </div>
         <div className="server-info">
           <h4>{getTitle()} Unit</h4>

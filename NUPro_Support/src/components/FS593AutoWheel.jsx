@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import KameraSet from './KameraSet';
 import { MULTI_GAMES } from './gamesConfig';
-import placeholderImg from '../assets/terminal-c028a.jpg';
+import singleZeroImg from '../assets/Wheel/Single0.png';
+import aDoubleZeroImg from '../assets/Wheel/a00.png';
+import fDoubleZeroImg from '../assets/Wheel/f00.png';
+import wynnDoubleZeroImg from '../assets/Wheel/w00.png';
 
 const WHEEL_VARIANTS = [
-  { id: 'Single 0', label: 'Single 0', image: placeholderImg },
-  { id: 'American 00', label: 'American 00', image: placeholderImg },
-  { id: 'French 00', label: 'French 00', image: placeholderImg },
-  { id: 'Wynn 00', label: 'Wynn 00', image: placeholderImg },
+  { id: 'Single 0', label: 'Single 0', image: singleZeroImg },
+  { id: 'American 00', label: 'American 00', image: aDoubleZeroImg },
+  { id: 'French 00', label: 'French 00', image: fDoubleZeroImg },
+  { id: 'Wynn 00', label: 'Wynn 00', image: wynnDoubleZeroImg },
 ];
 
 const FS593AutoWheel = ({ onAddGame }) => {
@@ -72,7 +75,7 @@ const FS593AutoWheel = ({ onAddGame }) => {
       {/* Produkt-Vorschau */}
       <div className="server-preview-container">
         <div className="server-img-wrapper">
-          <img src={placeholderImg} alt="FS593 Auto Wheel" className="server-img" />
+          <img src={'src/assets/Wheel/FS593.png'} alt="FS593 Auto Wheel" className="server-img"  height={300}/>
         </div>
         <div className="server-info">
           <h4>FS593 Auto Wheel Unit</h4>
