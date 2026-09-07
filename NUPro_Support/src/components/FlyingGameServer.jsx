@@ -4,7 +4,7 @@ import defaultPlaceholder from '../assets/terminal-c028a.jpg';
 
 // Reale Gehäuse-Bilder
 import fs695CaseImg from '../assets/Server/FS695FGS.png';
-import bs707CaseImg from '../assets/Server/FS695FGS.png';
+import bs707CaseImg from '../assets/Server/bs_707.png';
 
 // Reale Flying Game Bilder (Pfad: NUPro_Support/src/assets/Games/)
 import flyBacImg from '../assets/Games/fly_bac.png';

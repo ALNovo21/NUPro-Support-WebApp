@@ -2,6 +2,50 @@ import React, { useState } from 'react';
 import { ALL_REMOTE_GAMES } from './gamesConfig';
 import placeholderImg from '../assets/terminal-c028a.jpg';
 
+// Hauptbild-Import für den Server (FS695FGS)
+import fs695ServerImg from '../assets/Server/bs_707.png';
+
+// Spiele-Bilder Import (für Touchbet)
+import touchBacImg from '../assets/Games/touch_bac.png';
+import touchBjlImg from '../assets/Games/touch_bj.png';
+import touchRouImg from '../assets/Games/touch_rou.png';
+import touchSicImg from '../assets/Games/touch_sic.png';
+import touchLlrImg from '../assets/Games/llr.png';
+import touch88Img from '../assets/Games/88.png';
+
+// Spiele-Bilder Import ( Flying )
+import flyBacImg from '../assets/Games/fly_bac.png';
+import flyBjlImg from '../assets/Games/fly_bj.png';
+import flyRouImg from '../assets/Games/fly_rou.png';
+import flySicImg from '../assets/Games/fly_sic.png';
+
+
+// Spiele-Bilder Import ( Multi )
+import multiRouImg from '../assets/Games/multi_rou.png';
+
+const GAME_IMAGES = {
+  // Touchbet Games
+  'Touchbet Live Roulette': touchRouImg,
+  'Touchbet Live 88 Roulette': touch88Img,
+  'Touchbet Live Lucky Lady\'s Roulette': touchLlrImg,
+  'Touchbet Live Blackjack': touchBjlImg,
+  'Touchbet Live Baccarat': touchBacImg,
+  'Touchbet Live SICBO': touchSicImg,
+
+  // Flying / Virtual Games
+  'Flying (Virtual) Roulette': flyRouImg,
+  'Flying (Virtual) 88 Roulette': touch88Img,
+  'Flying (Virtual) Lucky Lady\'s Roulette': touchLlrImg,
+  'Flying (Virtual) Blackjack': flyBjlImg,
+  'Flying (Virtual) Baccarat': flyBacImg,
+  'Flying (Virtual) SICBO': flySicImg,
+
+  // Multi Games
+  'Multi Roulette': multiRouImg,
+  'Multi 88 Roulette': touch88Img,
+  'Multi Lucky Lady\'s Roulette': touchLlrImg,
+};
+
 const RemoteGameServerBooksize = ({ onAddGame }) => {
   const [gameType, setGameType] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -55,10 +99,15 @@ const RemoteGameServerBooksize = ({ onAddGame }) => {
         </span>
       </div>
 
-      {/* Produkt-Vorschau */}
+      {/* Produkt-Vorschau mit FS695FGS Bild (max height 300) */}
       <div className="server-preview-container">
-        <div className="server-img-wrapper">
-          <img src={placeholderImg} alt="Remote Game Server" className="server-img" />
+        <div className="server-img-wrapper large-preview-wrapper" style={{ maxHeight: '300px', height: 'auto' }}>
+          <img 
+            src={fs695ServerImg} 
+            alt="Remote Game Server" 
+            className="server-img large-server-img" 
+            style={{ maxHeight: '300px', objectFit: 'contain', width: '100%' }}
+          />
         </div>
         <div className="server-info">
           <h4>Remote Game Server Unit</h4>
@@ -68,19 +117,22 @@ const RemoteGameServerBooksize = ({ onAddGame }) => {
         </div>
       </div>
 
-      {/* 1. Choose Remote Game Type (Karten-Auswahl) */}
+      {/* 1. Choose Remote Game Type (Karten-Auswahl mit Logos) */}
       <div className="terminal-section">
         <label className="section-label">1. Choose Remote Game Type</label>
         <div className="terminal-image-grid">
           {ALL_REMOTE_GAMES.map((game, index) => {
             const isSelected = gameType === game;
+            const imgSrc = GAME_IMAGES[game] || placeholderImg;
             return (
               <div
                 key={index}
                 className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => handleSelectGameType(game)}
               >
-                <div className="card-top-badge">Remote Game</div>
+                <div className="img-wrapper">
+                  <img src={imgSrc} alt={game} className="terminal-img" />
+                </div>
                 <span className="terminal-name">{game}</span>
               </div>
             );

@@ -1,5 +1,5 @@
 import React from 'react';
-import placeholderImg from '../assets/terminal-c028a.jpg';
+import booksizeImg from '../assets/Server/bs_707.png';
 
 const StreamServer = ({ isRequired, fs593Count = 0, fs695Count = 0 }) => {
   return (
@@ -15,7 +15,7 @@ const StreamServer = ({ isRequired, fs593Count = 0, fs695Count = 0 }) => {
       {/* Produkt-Vorschau */}
       <div className="server-preview-container">
         <div className="server-img-wrapper">
-          <img src={placeholderImg} alt="Stream Server" className="server-img" />
+          <img src={booksizeImg} alt="Stream Server" className="server-img" />
         </div>
         <div className="server-info">
           <h4>Stream Server Unit</h4>
