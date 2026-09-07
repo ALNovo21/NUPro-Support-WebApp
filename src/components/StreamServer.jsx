@@ -19,9 +19,6 @@ const StreamServer = ({ isRequired, fs593Count = 0, fs695Count = 0 }) => {
         </div>
         <div className="server-info">
           <h4>Stream Server Unit</h4>
-          <p className="text-muted">
-            Verarbeitet Video-Streams für konfigurierte Live-Komponenten im Netzwerk.
-          </p>
         </div>
       </div>
 
