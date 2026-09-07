@@ -1,35 +1,65 @@
 import React from 'react';
+import placeholderImg from '../assets/terminal-c028a.jpg';
 
 const StreamServer = ({ isRequired, fs593Count = 0, fs695Count = 0 }) => {
   return (
-    <div className="stream-card" style={{ border: '1px solid #ccc', padding: '24px', borderRadius: '8px' }}>
-      <h3 style={{ marginTop: 0 }}>Stream Server Configuration</h3>
+    <div className="terminal-card">
+      {/* Header Bar */}
+      <div className="card-header-bar">
+        <h3 className="terminal-title">Stream Server Configuration</h3>
+        <span className={`status-badge ${isRequired ? 'ready' : 'pending'}`}>
+          {isRequired ? '● Auto Included' : '○ Not Required'}
+        </span>
+      </div>
 
-      {isRequired ? (
-        <div style={{ color: '#155724', backgroundColor: '#d4edda', borderColor: '#c3e6cb', padding: '20px', borderRadius: '6px', border: '1px solid' }}>
-          <h4 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>✓</span> 1x Stream Server Automatically Included
-          </h4>
-          <p style={{ margin: 0 }}>
-            You have selected live components in your setup:
-          </p>
-          <ul style={{ margin: '8px 0 12px 20px', padding: 0 }}>
-            {fs593Count > 0 && <li>FS593 Auto Wheel ({fs593Count}x)</li>}
-            {fs695Count > 0 && <li>FS695 Live Game Server ({fs695Count}x)</li>}
-          </ul>
-          <p style={{ margin: 0, fontWeight: '500', fontSize: '0.95em' }}>
-            ℹ️ No configuration required. Exactly 1x Stream Server is automatically added to your total order list.
+      {/* Produkt-Vorschau */}
+      <div className="server-preview-container">
+        <div className="server-img-wrapper">
+          <img src={placeholderImg} alt="Stream Server" className="server-img" />
+        </div>
+        <div className="server-info">
+          <h4>Stream Server Unit</h4>
+          <p className="text-muted">
+            Verarbeitet Video-Streams für konfigurierte Live-Komponenten im Netzwerk.
           </p>
         </div>
-      ) : (
-        <div style={{ color: '#856404', backgroundColor: '#fff3cd', borderColor: '#ffeeba', padding: '20px', borderRadius: '6px', border: '1px solid' }}>
-          <h4 style={{ margin: '0 0 10px 0' }}>No Stream Server Required</h4>
-          <p style={{ margin: 0 }}>
-            Neither an <strong>FS593 Auto Wheel</strong> nor an <strong>FS695 Live Game Server</strong> was selected. 
-            A Stream Server is not required for this configuration.
-          </p>
-        </div>
-      )}
+      </div>
+
+      {/* Status-Information */}
+      <div className="terminal-section">
+        {isRequired ? (
+          <div className="info-banner success">
+            <div className="info-banner-header">
+              <span className="check-icon">✓</span>
+              <h4>1x Stream Server Automatically Included</h4>
+            </div>
+            <p>You have selected live components in your setup:</p>
+            <ul className="info-list">
+              {fs593Count > 0 && (
+                <li>
+                  <strong>FS593 Auto Wheel:</strong> {fs593Count}×
+                </li>
+              )}
+              {fs695Count > 0 && (
+                <li>
+                  <strong>FS695 Live Game Server:</strong> {fs695Count}×
+                </li>
+              )}
+            </ul>
+            <p className="info-subtext">
+              ℹ️ No configuration required. Exactly 1x Stream Server is automatically added to your total order list.
+            </p>
+          </div>
+        ) : (
+          <div className="info-banner warning">
+            <h4>No Stream Server Required</h4>
+            <p>
+              Neither an <strong>FS593 Auto Wheel</strong> nor an <strong>FS695 Live Game Server</strong> was selected.
+              A Stream Server is not required for this configuration.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

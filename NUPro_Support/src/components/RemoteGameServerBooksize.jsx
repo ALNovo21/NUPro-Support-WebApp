@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { ALL_REMOTE_GAMES } from './gamesConfig';
+import placeholderImg from '../assets/terminal-c028a.jpg';
 
 const RemoteGameServerBooksize = ({ onAddGame }) => {
   const [gameType, setGameType] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedServers, setAddedServers] = useState([]);
 
-  const handleGameTypeChange = (event) => {
-    setGameType(event.target.value);
+  const handleSelectGameType = (game) => {
+    setGameType(game);
   };
 
-  const handleQuantityChange = (event) => {
+  const handleQuantityChange = (delta) => {
+    setQuantity((prev) => Math.max(1, prev + delta));
+  };
+
+  const handleInputChange = (event) => {
     const value = parseInt(event.target.value, 10);
     setQuantity(isNaN(value) || value < 1 ? 1 : value);
   };
@@ -19,9 +24,7 @@ const RemoteGameServerBooksize = ({ onAddGame }) => {
     if (!gameType || quantity < 1) return;
 
     setAddedServers((prevList) => {
-      const existingIndex = prevList.findIndex(
-        (item) => item.gameType === gameType
-      );
+      const existingIndex = prevList.findIndex((item) => item.gameType === gameType);
 
       if (existingIndex > -1) {
         const updatedList = [...prevList];
@@ -32,83 +35,115 @@ const RemoteGameServerBooksize = ({ onAddGame }) => {
       }
     });
 
-    // An den zentralen App State übergeben
     if (onAddGame) {
       onAddGame(gameType, quantity);
     }
 
-    // Formular zurücksetzen
     setGameType('');
     setQuantity(1);
   };
 
   const isReady = Boolean(gameType && quantity >= 1);
-  const status = isReady ? 'Ready' : 'Not Configured';
 
   return (
-    <div className="remote-card">
-      <h3 className="remote-title">Remote Game Server Booksize</h3>
-
-      {/* 1. Spiel wählen */}
-      <div className="remote-section">
-        <label htmlFor="remote-game-select">1. Choose Game Type:</label>
-        <select
-          id="remote-game-select"
-          value={gameType}
-          onChange={handleGameTypeChange}
-        >
-          <option value="">Please select</option>
-          {ALL_REMOTE_GAMES.map((game, index) => (
-            <option key={index} value={game}>
-              {game}
-            </option>
-          ))}
-        </select>
+    <div className="terminal-card">
+      {/* Header Bar */}
+      <div className="card-header-bar">
+        <h3 className="terminal-title">Remote Game Server Booksize</h3>
+        <span className={`status-badge ${isReady ? 'ready' : 'pending'}`}>
+          {isReady ? '● Ready' : '○ Not Configured'}
+        </span>
       </div>
 
-      {/* 2. Quantity */}
-      <div className="remote-section">
-        <label htmlFor="remote-quantity">2. Quantity:</label>
-        <input
-          id="remote-quantity"
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={handleQuantityChange}
-        />
+      {/* Produkt-Vorschau */}
+      <div className="server-preview-container">
+        <div className="server-img-wrapper">
+          <img src={placeholderImg} alt="Remote Game Server" className="server-img" />
+        </div>
+        <div className="server-info">
+          <h4>Remote Game Server Unit</h4>
+          <p className="text-muted">
+            Kompakte Booksize-Servereinheit für den Betrieb externer Spiele und Remote-Funktionen.
+          </p>
+        </div>
       </div>
 
-      {/* 3. Status & Add Button */}
-      <div className="remote-section">
-        <p>
-          <strong>Status:</strong>{' '}
-          <span className={`status ${isReady ? 'ready' : 'not-configured'}`}>
-            {status}
-          </span>
-        </p>
-        <button
-          className="remote-add-button"
-          onClick={handleAddServer}
-          disabled={!isReady}
-        >
-          Add Remote Game Server
-        </button>
+      {/* 1. Choose Remote Game Type (Karten-Auswahl) */}
+      <div className="terminal-section">
+        <label className="section-label">1. Choose Remote Game Type</label>
+        <div className="terminal-image-grid">
+          {ALL_REMOTE_GAMES.map((game, index) => {
+            const isSelected = gameType === game;
+            return (
+              <div
+                key={index}
+                className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleSelectGameType(game)}
+              >
+                <div className="card-top-badge">Remote Game</div>
+                <span className="terminal-name">{game}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Hinzugefügte Server */}
-      <div className="remote-section">
-        <h4>Added Remote Game Servers:</h4>
+      {/* 2. Quantity & Action Row */}
+      <div className="terminal-section">
+        <label htmlFor="remote-quantity" className="section-label">
+          2. Quantity & Action
+        </label>
+        <div className="action-row">
+          <div className="quantity-group">
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(-1)}
+              disabled={quantity <= 1}
+            >
+              −
+            </button>
+            <input
+              id="remote-quantity"
+              type="number"
+              className="qty-input"
+              min="1"
+              value={quantity}
+              onChange={handleInputChange}
+            />
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(1)}
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            className="terminal-add-button"
+            onClick={handleAddServer}
+            disabled={!isReady}
+          >
+            + Add Remote Game Server
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Added Remote Servers Summary */}
+      <div className="terminal-section added-list-section">
+        <label className="section-label">Added Remote Game Servers Summary</label>
         {addedServers.length === 0 ? (
-          <p>No Remote Game Servers added yet.</p>
+          <div className="empty-state">No Remote Game Servers added yet.</div>
         ) : (
-          <ul>
+          <div className="added-terminals-grid">
             {addedServers.map((item, index) => (
-              <li key={index}>
-                <strong>Game:</strong> {item.gameType} |{' '}
-                <strong>Quantity:</strong> {item.quantity}x
-              </li>
+              <div key={index} className="added-terminal-chip">
+                <span className="chip-type">{item.gameType}</span>
+                <span className="chip-qty">{item.quantity}×</span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

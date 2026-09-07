@@ -9,6 +9,7 @@ import StreamServer from './components/StreamServer';
 import FlyingGameServer from './components/FlyingGameServer';
 import RemoteGameServer from './components/RemoteGameServerBooksize';
 import AnimationPC from './components/AnimationPC';
+import OrderSummary from './components/OrderSummary'; // 💡 Importiert deine neue OrderSummary Komponente
 
 const STEPS = [
   { id: 1, title: 'Terminals', optional: false },
@@ -27,8 +28,8 @@ export default function App() {
   const [isCompleted, setIsCompleted] = useState(false);
 
   // System Configurations State
-  const [terminalConfig, setTerminalConfig] = useState({ type: 'Standard Terminal', quantity: 1 });
-  const [dbServerConfig, setDbServerConfig] = useState({ model: 'FS695 DB Server', execution: 'Standard' });
+  const [terminalConfig, setTerminalConfig] = useState({ type: 'Standard Terminal', quantity: 1, variant: 'Standard' });
+  const [dbServerConfig, setDbServerConfig] = useState({ model: 'FS695 DB Server', execution: 'Standard', housing: 'FS695 Case', quantity: 1 });
   const [animPcConfig, setAnimPcConfig] = useState({ animationPcs: 0, resultPcs: 0 });
 
   // Game Lists State
@@ -59,13 +60,13 @@ export default function App() {
     handleAddGenericGame('FS695 Live Game Server', gameType, quantity);
   };
 
-  const handleAddFlying = (game, quantity) => {
-    setFlyingList((prev) => [...prev, { game, quantity: Number(quantity) }]);
+  const handleAddFlying = (game, quantity, caseType = 'FS695 Case') => {
+    setFlyingList((prev) => [...prev, { gameType: game, caseType, quantity: Number(quantity) }]);
     handleAddGenericGame('Flying Game Server', game, quantity);
   };
 
   const handleAddRemote = (game, quantity) => {
-    setRemoteList((prev) => [...prev, { game, quantity: Number(quantity) }]);
+    setRemoteList((prev) => [...prev, { gameType: game, quantity: Number(quantity) }]);
     handleAddGenericGame('Remote Game Server', game, quantity);
   };
 
@@ -77,6 +78,37 @@ export default function App() {
       });
     }
   }, []);
+
+  // Erstellt das benötigte Datenobjekt exakt im Format, das OrderSummary erwartet
+  const summaryConfigData = {
+    terminals: [{
+      type: terminalConfig.type || 'Standard Terminal',
+      variant: terminalConfig.variant || 'Standard',
+      quantity: Number(terminalConfig.quantity || 1)
+    }],
+    dbServers: [{
+      gameType: dbServerConfig.model || 'FS695 DB Server',
+      housing: dbServerConfig.execution || dbServerConfig.housing || 'Standard',
+      quantity: Number(dbServerConfig.quantity || 1)
+    }],
+    autoWheels: fs593List,
+    liveServers: fs695List,
+    streamServersCount: requiresStreamServer ? 1 : 0,
+    remoteServers: remoteList,
+    flyingServers: flyingList,
+    animationPcsCount: animPcConfig.animationPcs,
+    resultPcsCount: animPcConfig.resultPcs,
+  };
+
+  const handleExportConfiguration = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(summaryConfigData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', 'NovoUnity_Configuration.json');
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
@@ -101,18 +133,22 @@ export default function App() {
       case 8:
         return <AnimationPC allSelectedGames={allGames} onChangeConfig={handleAnimPcChange} />;
       case 9:
+        if (isCompleted) {
+          return (
+            <div className="completion-screen">
+              <div className="completion-icon">✓</div>
+              <h2>Configuration Complete!</h2>
+              <p className="text-muted">The entire system setup has been successfully submitted and saved.</p>
+              <button className="btn btn-primary" onClick={() => window.location.reload()}>
+                Start New Configuration
+              </button>
+            </div>
+          );
+        }
         return (
-          <SystemSummary
-            terminalConfig={terminalConfig}
-            dbServerConfig={dbServerConfig}
-            animPcConfig={animPcConfig}
-            requiresStreamServer={requiresStreamServer}
-            fs593List={fs593List}
-            fs695List={fs695List}
-            flyingList={flyingList}
-            remoteList={remoteList}
-            isCompleted={isCompleted}
-            onReset={() => window.location.reload()}
+          <OrderSummary 
+            configData={summaryConfigData} 
+            onExport={handleExportConfiguration} 
           />
         );
       default:
@@ -123,26 +159,25 @@ export default function App() {
   return (
     <div className="configurator-container">
       {/* Header Navigation */}
-      {/* Interaktiver Stepper Header */}
-<nav className="stepper-header">
-  {STEPS.map((step) => {
-    const isActive = currentStep === step.id;
-    const isCompleted = currentStep > step.id;
+      <nav className="stepper-header">
+        {STEPS.map((step) => {
+          const isActive = currentStep === step.id;
+          const isStepCompleted = currentStep > step.id;
 
-    return (
-      <button
-        key={step.id}
-        onClick={() => setCurrentStep(step.id)}
-        className={`stepper-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
-      >
-        <span className="stepper-number">
-          {isCompleted ? '✓' : step.id}
-        </span>
-        <span className="stepper-title">{step.title}</span>
-      </button>
-    );
-  })}
-</nav>
+          return (
+            <button
+              key={step.id}
+              onClick={() => setCurrentStep(step.id)}
+              className={`stepper-item ${isActive ? 'active' : ''} ${isStepCompleted ? 'completed' : ''}`}
+            >
+              <span className="stepper-number">
+                {isStepCompleted ? '✓' : step.id}
+              </span>
+              <span className="stepper-title">{step.title}</span>
+            </button>
+          );
+        })}
+      </nav>
 
       {/* Main Content Area */}
       <main className="step-content">{renderStepContent()}</main>
@@ -174,131 +209,5 @@ export default function App() {
         </footer>
       )}
     </div>
-  );
-}
-
-/* ====================================================================
-   SUMMARY COMPONENTS
-   ==================================================================== */
-
-function SystemSummary({
-  terminalConfig,
-  dbServerConfig,
-  animPcConfig,
-  requiresStreamServer,
-  fs593List,
-  fs695List,
-  flyingList,
-  remoteList,
-  isCompleted,
-  onReset,
-}) {
-  if (isCompleted) {
-    return (
-      <div className="completion-screen">
-        <div className="completion-icon">✓</div>
-        <h2>Configuration Complete!</h2>
-        <p className="text-muted">The entire system setup has been successfully submitted and saved.</p>
-        <button className="btn btn-primary" onClick={onReset}>
-          Start New Configuration
-        </button>
-      </div>
-    );
-  }
-
-  const liveWheelData = [
-    ...fs593List.map((i) => ({ comp: 'FS593 Auto Wheel', type: i.gameType || 'Standard Wheel', qty: `${i.quantity}x` })),
-    ...fs695List.map((i) => ({ comp: 'FS695 Live Game Server', type: i.gameType || 'Standard LGS', qty: `${i.quantity}x` })),
-  ];
-
-  const additionalServerData = [
-    ...flyingList.map((i) => ({ comp: 'Flying Game Server', type: i.game, qty: `${i.quantity}x` })),
-    ...remoteList.map((i) => ({ comp: 'Remote Game Server', type: i.game, qty: `${i.quantity}x` })),
-  ];
-
-  return (
-    <div className="summary-card">
-      <h3 className="summary-title">📋 Complete System Summary</h3>
-
-      <SummarySection title="1. Core Hardware & Infrastructure">
-        <SummaryKeyValue label="Terminals" value={`${terminalConfig.type || 'Standard Terminal'} (${terminalConfig.quantity || 1}x)`} />
-        <SummaryKeyValue label="Database Server" value={`FS695 DB Server — ${dbServerConfig.execution || 'Standard Execution'}`} />
-        <SummaryKeyValue
-          label="Stream Server"
-          value={
-            requiresStreamServer ? (
-              <span className="text-success">1x Required & Auto-Added</span>
-            ) : (
-              <span className="text-muted">0x (Not Required)</span>
-            )
-          }
-        />
-      </SummarySection>
-
-      <SummarySection title="2. Animation & Result Display PCs">
-        <SummaryKeyValue label="Animation PCs" value={`${animPcConfig.animationPcs || 0}x`} />
-        <SummaryKeyValue label="RID (Result) PCs" value={`${animPcConfig.resultPcs || 0}x`} />
-        <SummaryKeyValue label="Gesamtanzahl Display PCs" value={`${(animPcConfig.animationPcs || 0) + (animPcConfig.resultPcs || 0)}x`} bold />
-      </SummarySection>
-
-      <SummarySection title="3. Wheels & Live Game Server Details">
-        <GenericSummaryTable headers={['Component', 'Game / Type', 'Quantity']} data={liveWheelData} emptyMessage="No FS593 Auto Wheels or FS695 Live Game Servers added." />
-      </SummarySection>
-
-      <SummarySection title="4. Flying & Remote Game Servers">
-        <GenericSummaryTable headers={['Server Type', 'Configured Game', 'Quantity']} data={additionalServerData} emptyMessage="No Flying or Remote Game Servers added." />
-      </SummarySection>
-    </div>
-  );
-}
-
-function SummarySection({ title, children }) {
-  return (
-    <div className="summary-section">
-      <h4>{title}</h4>
-      <table className="summary-table">
-        <tbody>{children}</tbody>
-      </table>
-    </div>
-  );
-}
-
-function SummaryKeyValue({ label, value, bold = false }) {
-  return (
-    <tr className={bold ? 'highlight' : ''}>
-      <td className="label">{label}:</td>
-      <td style={{ fontWeight: bold ? 'bold' : 'normal' }}>{value}</td>
-    </tr>
-  );
-}
-
-function GenericSummaryTable({ headers, data, emptyMessage }) {
-  return (
-    <table className="summary-table">
-      <thead>
-        <tr>
-          {headers.map((h, i) => (
-            <th key={i}>{h}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.length === 0 ? (
-          <tr>
-            <td colSpan={headers.length} className="text-muted text-center">
-              {emptyMessage}
-            </td>
-          </tr>
-        ) : (
-          data.map((row, idx) => (
-            <tr key={idx}>
-              <td>{row.comp}</td>
-              <td>{row.type}</td>
-              <td>{row.qty}</td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
   );
 }

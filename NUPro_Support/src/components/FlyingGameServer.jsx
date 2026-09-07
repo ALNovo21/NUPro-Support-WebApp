@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
 import { FLYING_GAMES } from './gamesConfig';
+import defaultPlaceholder from '../assets/terminal-c028a.jpg';
+
+// 💡 ZUORDNUNG: Später mit echten Pfaden für Gehäuse und Spiele füllen
+const CASE_IMAGES = {
+  'FS695 Case': defaultPlaceholder,
+  'Standalone Booksize': defaultPlaceholder,
+};
+
+const GAME_IMAGES = {
+  // 'Roulette': require('../assets/games/roulette.png'),
+  // 'Blackjack': require('../assets/games/blackjack.png'),
+};
 
 const FlyingGameServer = ({ onAddGame }) => {
   const [caseType, setCaseType] = useState('');
@@ -7,15 +19,11 @@ const FlyingGameServer = ({ onAddGame }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedServers, setAddedServers] = useState([]);
 
-  const handleCaseChange = (event) => {
-    setCaseType(event.target.value);
+  const handleQuantityChange = (delta) => {
+    setQuantity((prev) => Math.max(1, prev + delta));
   };
 
-  const handleGameTypeChange = (event) => {
-    setGameType(event.target.value);
-  };
-
-  const handleQuantityChange = (event) => {
+  const handleInputChange = (event) => {
     const value = parseInt(event.target.value, 10);
     setQuantity(isNaN(value) || value < 1 ? 1 : value);
   };
@@ -37,7 +45,6 @@ const FlyingGameServer = ({ onAddGame }) => {
       }
     });
 
-    // An den zentralen App State übergeben
     if (onAddGame) {
       onAddGame(gameType, quantity);
     }
@@ -49,79 +56,133 @@ const FlyingGameServer = ({ onAddGame }) => {
   };
 
   const isReady = Boolean(caseType && gameType && quantity >= 1);
-  const status = isReady ? 'Ready' : 'Not Configured';
 
   return (
-    <div className="nlx-card">
-      <h3 className="nlx-title">Flying Game Server</h3>
-
-      {/* 1. Gehäuse/Typ wählen */}
-      <div className="nlx-section">
-        <label htmlFor="case-select">1. Choose Housing / Variant:</label>
-        <select id="case-select" value={caseType} onChange={handleCaseChange}>
-          <option value="">Please select</option>
-          <option value="FS695 Case">FS695 Case</option>
-          <option value="Standalone Booksize">Standalone Booksize</option>
-        </select>
+    <div className="terminal-card">
+      {/* Header Bar */}
+      <div className="card-header-bar">
+        <h3 className="terminal-title">Flying Game Server</h3>
+        <span className={`status-badge ${isReady ? 'ready' : 'pending'}`}>
+          {isReady ? '● Ready' : '○ Not Configured'}
+        </span>
       </div>
 
-      {/* 2. Flying Game wählen */}
-      <div className="nlx-section">
-        <label htmlFor="flying-game-select">2. Choose Game Type:</label>
-        <select id="flying-game-select" value={gameType} onChange={handleGameTypeChange}>
-          <option value="">Please select</option>
-          {FLYING_GAMES.map((game, index) => (
-            <option key={index} value={game}>
-              {game}
-            </option>
-          ))}
-        </select>
+      {/* Main Preview Container */}
+      <div className="server-preview-container">
+        <div className="server-img-wrapper">
+          <img src={defaultPlaceholder} alt="Flying Game Server" className="server-img" />
+        </div>
+        <div className="server-info">
+          <h4>Flying Game Server Unit</h4>
+          <p className="text-muted">
+            Gehäuse und Flying Game Variante auswählen sowie Anzahl festlegen.
+          </p>
+        </div>
       </div>
 
-      {/* 3. Quantity */}
-      <div className="nlx-section">
-        <label htmlFor="nlx-quantity">Quantity:</label>
-        <input
-          id="nlx-quantity"
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={handleQuantityChange}
-        />
+      {/* 1. Choose Housing / Variant */}
+      <div className="terminal-section">
+        <label className="section-label">1. Choose Housing / Variant</label>
+        <div className="terminal-image-grid">
+          {['FS695 Case', 'Standalone Booksize'].map((cType) => {
+            const isSelected = caseType === cType;
+            const imgSrc = CASE_IMAGES[cType] || defaultPlaceholder;
+            return (
+              <div
+                key={cType}
+                className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => setCaseType(cType)}
+              >
+                <div className="img-wrapper">
+                  <img src={imgSrc} alt={cType} className="terminal-img" />
+                </div>
+                <span className="terminal-name">{cType}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* 4. Status & Add Button */}
-      <div className="nlx-section">
-        <p>
-          <strong>Status:</strong>{' '}
-          <span className={`status ${isReady ? 'ready' : 'not-configured'}`}>
-            {status}
-          </span>
-        </p>
-        <button
-          className="nlx-add-button"
-          onClick={handleAddServer}
-          disabled={!isReady}
-        >
-          Add Flying Game Server
-        </button>
+      {/* 2. Choose Flying Game Type */}
+      <div className="terminal-section">
+        <label className="section-label">2. Choose Game Type</label>
+        <div className="terminal-image-grid">
+          {FLYING_GAMES.map((gType) => {
+            const isSelected = gameType === gType;
+            const imgSrc = GAME_IMAGES[gType] || defaultPlaceholder;
+            return (
+              <div
+                key={gType}
+                className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => setGameType(gType)}
+              >
+                <div className="img-wrapper">
+                  <img src={imgSrc} alt={gType} className="terminal-img" />
+                </div>
+                <span className="terminal-name">{gType}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Hinzugefügte Server */}
-      <div className="nlx-section">
-        <h4>Added Flying Game Servers:</h4>
+      {/* 3. Quantity & Action Row (1:1 wie bei den anderen Modulen) */}
+      <div className="terminal-section">
+        <label htmlFor="flying-quantity" className="section-label">
+          3. Quantity & Action
+        </label>
+        <div className="action-row">
+          <div className="quantity-group">
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(-1)}
+              disabled={quantity <= 1}
+            >
+              −
+            </button>
+            <input
+              id="flying-quantity"
+              type="number"
+              className="qty-input"
+              min="1"
+              value={quantity}
+              onChange={handleInputChange}
+            />
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(1)}
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            className="terminal-add-button"
+            onClick={handleAddServer}
+            disabled={!isReady}
+          >
+            + Add Flying Game Server
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Added Servers List Summary */}
+      <div className="terminal-section added-list-section">
+        <label className="section-label">Added Flying Game Servers Summary</label>
         {addedServers.length === 0 ? (
-          <p>No Game Servers added yet.</p>
+          <div className="empty-state">No Flying Game Servers added yet.</div>
         ) : (
-          <ul>
+          <div className="added-terminals-grid">
             {addedServers.map((item, index) => (
-              <li key={index}>
-                <strong>Variant:</strong> {item.caseType} |{' '}
-                <strong>Game:</strong> {item.gameType} |{' '}
-                <strong>Quantity:</strong> {item.quantity}x
-              </li>
+              <div key={index} className="added-terminal-chip">
+                <span className="chip-type">{item.gameType}</span>
+                <span className="chip-subtext">Case: {item.caseType}</span>
+                <span className="chip-qty">{item.quantity}×</span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

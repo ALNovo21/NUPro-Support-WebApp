@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import KameraSet from './KameraSet';
 import { TOUCHBET_GAMES } from './gamesConfig';
+import placeholderImg from '../assets/terminal-c028a.jpg';
+
+const DISPLAY_SIZES = [
+  { id: '10.1"', label: '10.1 Inch Display', image: placeholderImg },
+  { id: '15.6"', label: '15.6 Inch Display', image: placeholderImg },
+];
 
 const FS695LiveGameServer = ({ onAddGame }) => {
   const [displaySize, setDisplaySize] = useState('');
@@ -9,19 +15,23 @@ const FS695LiveGameServer = ({ onAddGame }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedServers, setAddedServers] = useState([]);
 
-  const handleDisplayChange = (event) => {
-    setDisplaySize(event.target.value);
+  const handleSelectDisplay = (size) => {
+    setDisplaySize(size);
   };
 
-  const handleGameTypeChange = (event) => {
-    setGameType(event.target.value);
+  const handleSelectGameType = (game) => {
+    setGameType(game);
   };
 
   const handleMountChange = (newMount) => {
     setMount(newMount);
   };
 
-  const handleQuantityChange = (event) => {
+  const handleQuantityChange = (delta) => {
+    setQuantity((prev) => Math.max(1, prev + delta));
+  };
+
+  const handleInputChange = (event) => {
     const value = parseInt(event.target.value, 10);
     setQuantity(isNaN(value) || value < 1 ? 1 : value);
   };
@@ -34,108 +44,153 @@ const FS695LiveGameServer = ({ onAddGame }) => {
       { displaySize, gameType, mount, quantity },
     ]);
 
-    // Send game selection to central App state
     if (onAddGame) {
       onAddGame(gameType, quantity);
     }
 
-    // Reset selection fields
     setDisplaySize('');
     setGameType('');
     setMount('');
     setQuantity(1);
   };
 
-  // Requires Display, Game AND Camera Mount to be ready
   const isReady = Boolean(displaySize && gameType && mount && quantity >= 1);
   const status = isReady ? 'Ready' : 'Not Configured';
 
   return (
-    <div className="lgs-card">
-      <h3 className="lgs-title">FS695 Live Game Server</h3>
-
-      {/* 1. Choose Display Size */}
-      <div className="lgs-section">
-        <label htmlFor="display-select">1. Choose Display Size:</label>
-        <select id="display-select" value={displaySize} onChange={handleDisplayChange}>
-          <option value="">Please select</option>
-          <option value='10.1"'>10.1 Inch</option>
-          <option value='15.6"'>15.6 Inch</option>
-        </select>
+    <div className="terminal-card">
+      {/* Header Bar */}
+      <div className="card-header-bar">
+        <h3 className="terminal-title">FS695 Live Game Server</h3>
+        <span className={`status-badge ${isReady ? 'ready' : 'pending'}`}>
+          {isReady ? '● Ready' : '○ Not Configured'}
+        </span>
       </div>
 
-      {/* 2. Choose Game Type */}
-      <div className="lgs-section">
-        <label htmlFor="lgs-game-select">2. Choose Game Type:</label>
-        <select
-          id="lgs-game-select"
-          value={gameType}
-          onChange={handleGameTypeChange}
-        >
-          <option value="">Please select</option>
-          {TOUCHBET_GAMES.map((game, index) => (
-            <option key={index} value={game}>
-              {game}
-            </option>
-          ))}
-        </select>
+      {/* Produkt-Vorschau mit Platzhalterbild */}
+      <div className="server-preview-container">
+        <div className="server-img-wrapper">
+          <img src={placeholderImg} alt="FS695 Live Game Server" className="server-img" />
+        </div>
+        <div className="server-info">
+          <h4>FS695 Live Game Server Unit</h4>
+          <p className="text-muted">
+            Verwaltung von Live-Tischspielen mit TouchBet-Anbindung im Netzwerk.
+          </p>
+        </div>
+      </div>
+
+      {/* 1. Choose Display Size (Card Selection mit Bild) */}
+      <div className="terminal-section">
+        <label className="section-label">1. Choose Display Size</label>
+        <div className="terminal-image-grid">
+          {DISPLAY_SIZES.map((display) => {
+            const isSelected = displaySize === display.id;
+            return (
+              <div
+                key={display.id}
+                className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleSelectDisplay(display.id)}
+              >
+                <div className="img-wrapper">
+                  <img src={display.image} alt={display.label} className="terminal-img" />
+                </div>
+                <span className="terminal-name">{display.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Choose Game Type (Card Selection) */}
+      <div className="terminal-section">
+        <label className="section-label">2. Choose Game Type</label>
+        <div className="terminal-image-grid">
+          {TOUCHBET_GAMES.map((game, index) => {
+            const isSelected = gameType === game;
+            return (
+              <div
+                key={index}
+                className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleSelectGameType(game)}
+              >
+                <div className="card-top-badge">TouchBet Game</div>
+                <span className="terminal-name">{game}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* 3. Choose Camera Mount */}
-      <div className="lgs-section">
-        <label>3. Choose Camera Mount:</label>
+      <div className="terminal-section">
+        <label className="section-label">3. Choose Camera Mount</label>
         <KameraSet mount={mount} onMountChange={handleMountChange} />
       </div>
 
-      {/* 4. Quantity */}
-      <div className="lgs-section">
-        <label htmlFor="lgs-quantity">4. Quantity:</label>
-        <input
-          id="lgs-quantity"
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={handleQuantityChange}
-        />
+      {/* 4. Quantity & Action Row */}
+      <div className="terminal-section">
+        <label htmlFor="lgs-quantity" className="section-label">
+          4. Quantity & Action
+        </label>
+        <div className="action-row">
+          <div className="quantity-group">
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(-1)}
+              disabled={quantity <= 1}
+            >
+              −
+            </button>
+            <input
+              id="lgs-quantity"
+              type="number"
+              className="qty-input"
+              min="1"
+              value={quantity}
+              onChange={handleInputChange}
+            />
+            <button
+              type="button"
+              className="qty-btn"
+              onClick={() => handleQuantityChange(1)}
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            className="terminal-add-button"
+            onClick={handleAddServer}
+            disabled={!isReady}
+          >
+            + Add Live Game Server
+          </button>
+        </div>
       </div>
 
-      {/* 5. Status & Add Button */}
-      <div className="lgs-section">
-        <p>
-          <strong>Status:</strong>{' '}
-          <span className={`status ${isReady ? 'ready' : 'not-configured'}`}>
-            {status}
-          </span>
-        </p>
-        <button
-          className="lgs-add-button"
-          onClick={handleAddServer}
-          disabled={!isReady}
-        >
-          Add Live Game Server
-        </button>
-      </div>
-
-      {/* Added Servers List */}
-      <div className="lgs-section">
-        <h4>Added Live Game Servers:</h4>
+      {/* 5. Added Servers List */}
+      <div className="terminal-section added-list-section">
+        <label className="section-label">Added Live Game Servers Summary</label>
         {addedServers.length === 0 ? (
-          <p>No Live Game Servers added yet.</p>
+          <div className="empty-state">No Live Game Servers added yet.</div>
         ) : (
-          <ul>
+          <div className="added-terminals-grid">
             {addedServers.map((item, index) => (
-              <li key={index}>
-                <strong>Display:</strong> {item.displaySize} |{' '}
-                <strong>Game:</strong> {item.gameType} |{' '}
-                <strong>Mount:</strong> {item.mount} |{' '}
-                <strong>Quantity:</strong> {item.quantity}x
-              </li>
+              <div key={index} className="added-terminal-chip">
+                <span className="chip-type">
+                  {item.gameType} ({item.displaySize})
+                </span>
+                <span className="chip-subtext">Mount: {item.mount}</span>
+                <span className="chip-qty">{item.quantity}×</span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default FS695LiveGameServer;
+export default FS695LiveGameServer
