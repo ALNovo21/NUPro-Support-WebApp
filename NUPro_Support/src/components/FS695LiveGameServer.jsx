@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GAME_TYPES } from './gamesConfig'; // Import der Spielbibliothek
+import { TOUCHBET_GAMES } from './gamesConfig'; // TOUCHBET_GAMES importieren
 
 const FS695LiveGameServer = () => {
   const [displaySize, setDisplaySize] = useState('');
@@ -60,12 +60,12 @@ const FS695LiveGameServer = () => {
         </select>
       </div>
 
-      {/* 2. Spielart auswählen (Dynamisch aus gamesConfig) */}
+      {/* 2. Spielart auswählen (Verwendet nun TOUCHBET_GAMES) */}
       <div className="lgs-section">
         <label htmlFor="gametype-select">2. Choose Game Type:</label>
         <select id="gametype-select" value={gameType} onChange={handleGameTypeChange}>
           <option value="">Please select</option>
-          {GAME_TYPES.map((game, index) => (
+          {TOUCHBET_GAMES.map((game, index) => (
             <option key={index} value={game}>
               {game}
             </option>
