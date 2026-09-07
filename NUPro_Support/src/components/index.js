@@ -5,5 +5,5 @@ export { default as StreamServer } from './StreamServer';
 export { default as AnimationPC } from './AnimationPC';
 export { default as FS695LiveGameServer } from './FS695LiveGameServer';
 export { default as KameraSet } from './KameraSet';
-export { default as GameServerNLXBooksize } from './GameServerNLXBooksize';
 export { default as RemoteGameServerBooksize } from './RemoteGameServerBooksize';
+export { default as FlyingGameServer } from './FlyingGameServer';

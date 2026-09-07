@@ -7,7 +7,7 @@ import {
   AnimationPC,
   FS695LiveGameServer,
   KameraSet,
-  GameServerNLXBooksize,
+  FlyingGameServer, // Geändert
   RemoteGameServerBooksize,
 } from './components';
 
@@ -26,7 +26,7 @@ const App = () => {
       <AnimationPC />
       <FS695LiveGameServer />
       <KameraSet />
-      <GameServerNLXBooksize />
+      <FlyingGameServer /> {/* Geändert */}
       <RemoteGameServerBooksize />
     </div>
   );

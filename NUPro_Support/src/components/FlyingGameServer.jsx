@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { FLYING_GAMES } from './gamesConfig'; // Oder direkt transformiert importieren
+import { FLYING_GAMES } from './gamesConfig';
 
-const GameServerNLXBooksize = () => {
-  const [caseType, setCaseType] = useState(''); // Default: 'Please select'
-  const [gameType, setGameType] = useState(''); // Default: 'Please select'
+const FlyingGameServer = () => {
+  const [caseType, setCaseType] = useState('');
+  const [gameType, setGameType] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedServers, setAddedServers] = useState([]);
 
@@ -24,7 +24,6 @@ const GameServerNLXBooksize = () => {
     if (!caseType || !gameType || quantity < 1) return;
 
     setAddedServers((prevList) => {
-      // Prüfen, ob exakt diese Kombination aus Case und Game existiert
       const existingIndex = prevList.findIndex(
         (item) => item.caseType === caseType && item.gameType === gameType
       );
@@ -49,7 +48,7 @@ const GameServerNLXBooksize = () => {
 
   return (
     <div className="nlx-card">
-      <h3 className="nlx-title">Game Server NLX Booksize</h3>
+      <h3 className="nlx-title">Flying Game Server</h3>
 
       {/* 1. Gehäuse/Typ wählen */}
       <div className="nlx-section">
@@ -124,4 +123,4 @@ const GameServerNLXBooksize = () => {
   );
 };
 
-export default GameServerNLXBooksize;
+export default FlyingGameServer;
