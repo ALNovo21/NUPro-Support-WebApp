@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import KameraSet from './KameraSet';
 
+
 const FS593AutoWheel = () => {
   const [wheelType, setWheelType] = useState(''); // Default: no selection
   const [selectedWheels, setSelectedWheels] = useState([]); // List of added wheels
@@ -34,33 +35,39 @@ const FS593AutoWheel = () => {
   };
 
   return (
-    <div>
-      <h3>FS593 Auto Wheel</h3>
+    <div className="fs593-card">
+      <h3 className="fs593-title">FS593 Auto Wheel</h3>
 
-      {/* Dropdown for Wheel Type Selection */}
-      <label htmlFor="wheel-type-select">Choose a Wheel Type:</label>
-      <select id="wheel-type-select" value={wheelType} onChange={handleWheelTypeChange}>
-        <option value="">Please select</option>
-        <option value="Single 0">Single 0</option>
-        <option value="American 00">American 00</option>
-        <option value="French 00">French 00</option>
-        <option value="Wynn 00">Wynn 00</option>
-      </select>
-      <button onClick={handleAddWheel}>Add</button>
+      <div className="fs593-section">
+        <label htmlFor="wheel-type-select">Choose a Wheel Type:</label>
+        <select id="wheel-type-select" value={wheelType} onChange={handleWheelTypeChange}>
+          <option value="">Please select</option>
+          <option value="Single 0">Single 0</option>
+          <option value="American 00">American 00</option>
+          <option value="French 00">French 00</option>
+          <option value="Wynn 00">Wynn 00</option>
+        </select>
+        <button className="fs593-add-button" onClick={handleAddWheel}>Add</button>
+      </div>
 
-      {/* Display selected wheels */}
-      <ul>
-        {selectedWheels.map((wheel, index) => (
-          <li key={index}>{wheel}</li>
-        ))}
-      </ul>
+      <div className="fs593-section">
+        <KameraSet onMountChange={handleMountChange} />
+      </div>
 
-      {/* KameraSet Component */}
-      <KameraSet onMountChange={handleMountChange} />
+      <div className="fs593-section">
+        <p><strong>Selected Wheel Type:</strong> {wheelType || 'None'}</p>
+        <p><strong>Selected Mount:</strong> {mount || 'None'}</p>
+        <p><strong>Status:</strong> <span className={`status ${status === 'Ready' ? 'ready' : 'not-configured'}`}>{status}</span></p>
+      </div>
 
-      <p>Selected Wheel Type: {wheelType || 'None'}</p> {/* Show "None" if no selection */}
-      <p>Selected Mount: {mount || 'None'}</p> {/* Show "None" if no mount */}
-      <p>Status: {status}</p>
+      <div className="fs593-section">
+        <h4>Added Wheels:</h4>
+        <ul>
+          {selectedWheels.map((wheel, index) => (
+            <li key={index}>{wheel}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
