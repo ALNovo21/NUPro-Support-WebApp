@@ -6,12 +6,28 @@ import aDoubleZeroImg from '../assets/Wheel/a00.png';
 import fDoubleZeroImg from '../assets/Wheel/f00.png';
 import wynnDoubleZeroImg from '../assets/Wheel/w00.png';
 
+
+// FS593 Hauptbild-Import
+import fs593Img from '../assets/Wheel/FS593.png';
+
+// Multi Game Bilder (Pfad: NUPro_Support/src/assets/Games/)
+// Multi Roulette verwendet ein eigenes oder ein passendes Wheel/Game-Bild, 88 und LLR teilen sich die gleichen Assets
+import multiRouImg from '../assets/Games/multi_rou.png';
+import multi88Img from '../assets/Games/88.png';
+import multiLlrImg from '../assets/Games/llr.png';
+
 const WHEEL_VARIANTS = [
   { id: 'Single 0', label: 'Single 0', image: singleZeroImg },
   { id: 'American 00', label: 'American 00', image: aDoubleZeroImg },
   { id: 'French 00', label: 'French 00', image: fDoubleZeroImg },
   { id: 'Wynn 00', label: 'Wynn 00', image: wynnDoubleZeroImg },
 ];
+
+const GAME_IMAGES = {
+  'Multi Roulette': multiRouImg,
+  'Multi 88 Roulette': multi88Img,
+  'Multi Lucky Lady\'s Roulette': multiLlrImg,
+};
 
 const FS593AutoWheel = ({ onAddGame }) => {
   const [gameType, setGameType] = useState('');
@@ -60,7 +76,6 @@ const FS593AutoWheel = ({ onAddGame }) => {
   };
 
   const isReady = Boolean(gameType && wheelType && mount && quantity >= 1);
-  const status = isReady ? 'Ready' : 'Not Configured';
 
   return (
     <div className="terminal-card">
@@ -74,8 +89,8 @@ const FS593AutoWheel = ({ onAddGame }) => {
 
       {/* Produkt-Vorschau */}
       <div className="server-preview-container">
-        <div className="server-img-wrapper">
-          <img src={'src/assets/Wheel/FS593.png'} alt="FS593 Auto Wheel" className="server-img"  height={300}/>
+        <div className="server-img-wrapper large-preview-wrapper" style={{ maxHeight: '300px', height: 'auto' }}>
+          <img src={fs593Img} alt="FS593 Auto Wheel" className="server-img large-server-img" style={{ maxHeight: '300px', objectFit: 'contain', width: '100%' }} />
         </div>
         <div className="server-info">
           <h4>FS593 Auto Wheel Unit</h4>
@@ -91,13 +106,18 @@ const FS593AutoWheel = ({ onAddGame }) => {
         <div className="terminal-image-grid">
           {MULTI_GAMES.map((game, index) => {
             const isSelected = gameType === game;
+            const imgSrc = GAME_IMAGES[game];
             return (
               <div
                 key={index}
                 className={`terminal-select-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => handleSelectGameType(game)}
               >
-                <div className="card-top-badge">Game Type</div>
+                {imgSrc && (
+                  <div className="img-wrapper">
+                    <img src={imgSrc} alt={game} className="terminal-img" />
+                  </div>
+                )}
                 <span className="terminal-name">{game}</span>
               </div>
             );

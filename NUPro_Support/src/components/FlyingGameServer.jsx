@@ -2,15 +2,30 @@ import React, { useState } from 'react';
 import { FLYING_GAMES } from './gamesConfig';
 import defaultPlaceholder from '../assets/terminal-c028a.jpg';
 
-// 💡 ZUORDNUNG: Später mit echten Pfaden für Gehäuse und Spiele füllen
+// Reale Gehäuse-Bilder
+import fs695CaseImg from '../assets/Server/FS695FGS.png';
+import bs707CaseImg from '../assets/Server/FS695FGS.png';
+
+// Reale Flying Game Bilder (Pfad: NUPro_Support/src/assets/Games/)
+import flyBacImg from '../assets/Games/fly_bac.png';
+import flyBjlImg from '../assets/Games/fly_bj.png';
+import flyRouImg from '../assets/Games/fly_rou.png';
+import flySicImg from '../assets/Games/fly_sic.png';
+import flyllrImg from '../assets/Games/llr.png';
+import fly88Img from '../assets/Games/88.png';
+
 const CASE_IMAGES = {
-  'FS695 Case': defaultPlaceholder,
-  'Standalone Booksize': defaultPlaceholder,
+  'FS695 Case': fs695CaseImg,
+  'Standalone Booksize': bs707CaseImg,
 };
 
 const GAME_IMAGES = {
-  // 'Roulette': require('../assets/games/roulette.png'),
-  // 'Blackjack': require('../assets/games/blackjack.png'),
+  'Flying (Virtual) Baccarat': flyBacImg,
+  'Flying (Virtual) Blackjack': flyBjlImg,
+  'Flying (Virtual) Roulette': flyRouImg,
+  'Flying (Virtual) SICBO': flySicImg,
+  'Flying (Virtual) Lucky Lady\'s Roulette': flyllrImg,
+  'Flying (Virtual) 88 Roulette': fly88Img,
 };
 
 const FlyingGameServer = ({ onAddGame }) => {
@@ -49,13 +64,13 @@ const FlyingGameServer = ({ onAddGame }) => {
       onAddGame(gameType, quantity);
     }
 
-    // Formular zurücksetzen
     setCaseType('');
     setGameType('');
     setQuantity(1);
   };
 
   const isReady = Boolean(caseType && gameType && quantity >= 1);
+  const currentPreviewImg = caseType ? CASE_IMAGES[caseType] : fs695CaseImg;
 
   return (
     <div className="terminal-card">
@@ -69,8 +84,13 @@ const FlyingGameServer = ({ onAddGame }) => {
 
       {/* Main Preview Container */}
       <div className="server-preview-container">
-        <div className="server-img-wrapper">
-          <img src={defaultPlaceholder} alt="Flying Game Server" className="server-img" />
+        <div className="server-img-wrapper large-preview-wrapper" style={{ maxHeight: '300px', height: 'auto' }}>
+          <img 
+            src={currentPreviewImg} 
+            alt="Flying Game Server Preview" 
+            className="server-img large-server-img" 
+            style={{ maxHeight: '300px', objectFit: 'contain', width: '100%' }}
+          />
         </div>
         <div className="server-info">
           <h4>Flying Game Server Unit</h4>
@@ -84,9 +104,9 @@ const FlyingGameServer = ({ onAddGame }) => {
       <div className="terminal-section">
         <label className="section-label">1. Choose Housing / Variant</label>
         <div className="terminal-image-grid">
-          {['FS695 Case', 'Standalone Booksize'].map((cType) => {
+          {Object.keys(CASE_IMAGES).map((cType) => {
             const isSelected = caseType === cType;
-            const imgSrc = CASE_IMAGES[cType] || defaultPlaceholder;
+            const imgSrc = CASE_IMAGES[cType];
             return (
               <div
                 key={cType}
@@ -126,7 +146,7 @@ const FlyingGameServer = ({ onAddGame }) => {
         </div>
       </div>
 
-      {/* 3. Quantity & Action Row (1:1 wie bei den anderen Modulen) */}
+      {/* 3. Quantity & Action Row */}
       <div className="terminal-section">
         <label htmlFor="flying-quantity" className="section-label">
           3. Quantity & Action

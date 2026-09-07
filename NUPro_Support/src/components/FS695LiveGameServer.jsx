@@ -4,8 +4,8 @@ import { TOUCHBET_GAMES } from './gamesConfig';
 import placeholderImg from '../assets/terminal-c028a.jpg';
 
 const DISPLAY_SIZES = [
-  { id: '10.1"', label: '10.1 Inch Display', image: placeholderImg },
-  { id: '15.6"', label: '15.6 Inch Display', image: placeholderImg },
+  { id: '10.1"', label: '10.1 Inch Display'},
+  { id: '15.6"', label: '15.6 Inch Display'},
 ];
 
 const FS695LiveGameServer = ({ onAddGame }) => {

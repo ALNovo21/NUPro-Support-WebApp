@@ -1,24 +1,26 @@
 import React from 'react';
-import placeholderImg from '../assets/terminal-c028a.jpg'; // Platzhalterbild
+import ceillingMountImg from '../assets/Ceilling.png'; 
+import tableMountImg from '../assets/Table.png';
+import wheelMountImg from '../assets/Wheel.png';
 
 const CAMERA_MOUNTS = [
   {
     id: 'Wheel Mount',
     title: 'Wheel Mount',
     description: 'Kamera direkt am FS593 integriert.',
-    image: placeholderImg,
+    image: wheelMountImg,
   },
   {
     id: 'Ceilling Mount',
     title: 'Ceilling Mount',
     description: 'Wandmontage - Kamera hängt von der Decke. - Maximale Deckenhöhe 8M',
-    image: placeholderImg,
+    image: ceillingMountImg,
   },
   {
     id: 'Table Mount',
     title: 'Table Mount',
     description: 'Montage für Tischhalterung - Achtung Löcher müssen gebohrt werden.',
-    image: placeholderImg,
+    image: tableMountImg,
   },
 ];
 
